@@ -2,14 +2,25 @@
   "manifest_version": 2,
 
   "name": "Commander",
-  "description": "This extension shows a Google Image search result for the current page",
+  "description": "Command palette for Chrome.",
   "version": "0.1",
 
   "browser_action": {
     "default_icon": "icon.png",
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_title": "Commander"
   },
   "permissions": [
     "activeTab"
-  ]
+  ],
+  "commands":{
+    "_execute_browser_action": {
+      "suggested_key": {
+        "windows": "Ctrl+Shift+P",
+        "mac": "Command+Shift+P",
+        "chromeos": "Ctrl+Shift+P",
+        "linux": "Ctrl+Shift+P"
+      }
+   }
+  }
 }
