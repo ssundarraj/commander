@@ -14,12 +14,12 @@
   //   "activeTab"
   // ],
 
-  "background": {
-    "scripts": [
-      "main.js"
-    ],
-    "persistant": false
-  },
+  // "background": {
+  //   "scripts": [
+  //     "js/main.js"
+  //   ],
+  //   "persistant": false
+  // },
   "commands":{
     "_execute_browser_action": {
       "suggested_key": {
@@ -34,9 +34,7 @@
     {
       "matches": ["http://*/*", "https://*/*"],
       "css": ["css/main.css"],
-      "js": [
-        "js/main.js"
-      ]
+      "js": ["js/main.js"]
     }
   ]
 }

@@ -1,4 +1,20 @@
-function test(){
-	console.log("TEST");
+document.addEventListener('DOMContentLoaded', populateDefaultSuggestions, false);
+function openNewTab(){
+    console.log("TEST");
 }
-document.getElementById("test").onclick = test;
+var defaultSugestions = [
+    {
+        "text": "New Tab",
+        "action": openNewTab
+    }
+];
+function populateDefaultSuggestions(){
+    for(suggestion of defaultSugestions){
+        console.log(suggestion.text);
+        var suggestionTag = document.createElement("li");
+        suggestionTag.innerHTML = suggestion.text;
+        document.getElementById('suggestions').appendChild(suggestionTag);
+    }
+}
+console.log(defaultSugestions);
+populateDefaultSuggestions();
