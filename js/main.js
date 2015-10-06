@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', populateDefaultSuggestions, false);
 function openNewTab(){
+    chrome.tabs.create({});
     console.log("TEST");
 }
 var defaultSugestions = [
@@ -13,6 +14,7 @@ function populateDefaultSuggestions(){
         console.log(suggestion.text);
         var suggestionTag = document.createElement("li");
         suggestionTag.innerHTML = suggestion.text;
+        suggestionTag.onclick = suggestion.action;
         document.getElementById('suggestions').appendChild(suggestionTag);
     }
 }
