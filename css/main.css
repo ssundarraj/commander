@@ -1,10 +1,22 @@
 #command{
 	width: 100%;
 	margin: 0px;
+	font-size: 1.3em;
+	padding: 1%;
 }
 
 body{
-	min-width: 200px;
+	min-width: 320px;
 	padding: 0px;
 	margin: 0px;
+}
+
+.suggestion {
+	list-style-type: none;
+	font-size: 1.3em;
+	padding: 1%;
+}
+
+#highlighted {
+	background-color: #EEEEEE;
 }

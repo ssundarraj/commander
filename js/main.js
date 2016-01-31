@@ -1,3 +1,5 @@
+var highlightedSuggestion;
+
 document.addEventListener('DOMContentLoaded', populateDefaultSuggestions, false);
 
 function openNewTab() {
@@ -73,14 +75,48 @@ var defaultSugestions = [
     }
 ];
 
+document.onkeydown = function(e){
+    var keynum;
+    if(window.event){ // IE                 
+        keynum = e.keyCode;
+    }
+    else if(e.which){ // Netscape/Firefox/Opera                  
+        keynum = e.which;
+    }
+    if (keynum == 40){
+        //down
+        highlightedSuggestion.id = "";
+        highlightedSuggestion = highlightedSuggestion.nextSibling;
+        if(!highlightedSuggestion){
+            var allSuggestions = document.getElementsByClassName("suggestion");
+            highlightedSuggestion = allSuggestions[allSuggestions.length - 1]
+        }
+        highlightedSuggestion.id = "highlighted";
+    }
+    else if (keynum == 38){
+        // slice(-1)[0] 
+        highlightedSuggestion.id = "";
+        highlightedSuggestion = highlightedSuggestion.previousSibling;
+        if(!highlightedSuggestion){
+            highlightedSuggestion = document.getElementsByClassName("suggestion")[0];
+        }
+        highlightedSuggestion.id = "highlighted";
+    }
+    else if (keynum == 13){
+        highlightedSuggestion.click();
+    }
+    // console.log(keynum);
+}
+
 function populateDefaultSuggestions() {
     for (suggestion of defaultSugestions) {
-        console.log(suggestion.text);
         var suggestionTag = document.createElement("li");
+        suggestionTag.className = "suggestion";
         suggestionTag.innerHTML = suggestion.text;
         suggestionTag.onclick = suggestion.action;
         document.getElementById('suggestions').appendChild(suggestionTag);
     }
+    highlightedSuggestion = document.getElementsByClassName("suggestion")[0];
+    highlightedSuggestion.id = "highlighted";
 }
-console.log(defaultSugestions);
 populateDefaultSuggestions();
