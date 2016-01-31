@@ -6,15 +6,25 @@
 }
 
 body{
-	min-width: 320px;
 	padding: 0px;
 	margin: 0px;
+	height: 200px;
+	min-width: 320px;
+}
+
+html{
+	height: 200px;
 }
 
 .suggestion {
 	list-style-type: none;
 	font-size: 1.3em;
 	padding: 1%;
+}
+
+#suggestions{
+	overflow-y: scroll;
+	height: 200px;
 }
 
 #highlighted {

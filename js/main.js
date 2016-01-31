@@ -75,6 +75,7 @@ var defaultSugestions = [
     }
 ];
 
+
 document.onkeydown = function(e){
     var keynum;
     if(window.event){ // IE                 
@@ -84,7 +85,7 @@ document.onkeydown = function(e){
         keynum = e.which;
     }
     if (keynum == 40){
-        //down
+        // down
         highlightedSuggestion.id = "";
         highlightedSuggestion = highlightedSuggestion.nextSibling;
         if(!highlightedSuggestion){
@@ -92,17 +93,20 @@ document.onkeydown = function(e){
             highlightedSuggestion = allSuggestions[allSuggestions.length - 1]
         }
         highlightedSuggestion.id = "highlighted";
+        highlightedSuggestion.scrollIntoView(alignToTop=true);
     }
     else if (keynum == 38){
-        // slice(-1)[0] 
+        // up
         highlightedSuggestion.id = "";
         highlightedSuggestion = highlightedSuggestion.previousSibling;
         if(!highlightedSuggestion){
             highlightedSuggestion = document.getElementsByClassName("suggestion")[0];
         }
         highlightedSuggestion.id = "highlighted";
+        highlightedSuggestion.scrollIntoView(alignToTop=true);
     }
     else if (keynum == 13){
+        // enter
         highlightedSuggestion.click();
     }
     // console.log(keynum);
