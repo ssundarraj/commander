@@ -1,6 +1,6 @@
 var highlightedSuggestion;
 
-document.addEventListener('DOMContentLoaded', populateDefaultSuggestions, false);
+document.addEventListener('DOMContentLoaded', initCommander, false);
 
 function openNewTab() {
     chrome.tabs.create({});
@@ -109,11 +109,11 @@ document.onkeydown = function(e){
         // enter
         highlightedSuggestion.click();
     }
-    // console.log(keynum);
 }
 
-function populateDefaultSuggestions() {
-    for (suggestion of defaultSugestions) {
+function populateSuggestions(suggestionList){
+    document.getElementById('suggestions').innerHTML = "";
+    for (suggestion of suggestionList) {
         var suggestionTag = document.createElement("li");
         suggestionTag.className = "suggestion";
         suggestionTag.innerHTML = suggestion.text;
@@ -123,4 +123,22 @@ function populateDefaultSuggestions() {
     highlightedSuggestion = document.getElementsByClassName("suggestion")[0];
     highlightedSuggestion.id = "highlighted";
 }
-populateDefaultSuggestions();
+
+function initCommander() {
+    populateSuggestions(defaultSugestions);
+
+    options = {
+        keys: ['text']
+    }
+    var f = new Fuse(defaultSugestions, options);
+
+    document.getElementById("command").oninput = function(){
+        var searchString = document.getElementById("command").value;
+        console.log(searchString);
+        console.log(f.search(searchString));
+        var fuzzResult = f.search(searchString);
+        populateSuggestions(fuzzResult);
+    }
+}
+
+
