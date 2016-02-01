@@ -10,7 +10,9 @@
     "default_popup": "popup.html",
     "default_title": "Commander"
   },
-
+  "permissions":[
+    "tabs"
+  ],
   "commands":{
     "_execute_browser_action": {
       "suggested_key": {

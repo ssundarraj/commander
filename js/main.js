@@ -1,6 +1,5 @@
 var highlightedSuggestion;
-
-document.addEventListener('DOMContentLoaded', initCommander, false);
+var suggestionList;
 
 function openNewTab() {
     chrome.tabs.create({});
@@ -11,24 +10,24 @@ function openNewWindow() {
 }
 
 function openHistory() {
-    chrome.tabs.create({url:"chrome://history"});
+    chrome.tabs.create({url: "chrome://history"});
 }
 
 function openDownloads() {
-    chrome.tabs.create({url:"chrome://downloads"});
+    chrome.tabs.create({url: "chrome://downloads"});
 }
 
-function openExtensions() {
-    chrome.tabs.create({url:"chrome://extensions"});
+function openExtensions(){
+    chrome.tabs.create({url: "chrome://extensions"});
 }
 
-function openSettings() {
-    chrome.tabs.create({url:"chrome://settings"});
+function openSettings(){
+    chrome.tabs.create({url: "chrome://settings"});
 }
 
-function closeCurrentTab() {
-    chrome.tabs.query({'active': true, 'windowId':chrome.windows.WINDOW_ID_CURRENT}, function (currentTabIds) {
-        var currentTabArray = [];
+function closeCurrentTab(){
+    chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (currentTabIds) {
+        var currentTabArray = [], currentTabId;
         for (currentTabId of currentTabIds) {
             currentTabArray.push(currentTabId.id);
         }
@@ -36,7 +35,7 @@ function closeCurrentTab() {
     });
 }
 
-function reloadTab() {
+function reloadTab(){
     chrome.tabs.reload();
 }
 
@@ -44,45 +43,65 @@ function newIncognitoWindow(){
     chrome.windows.create({'incognito': true});
 }
 
-var defaultSugestions = [
-    {
-        "text": "New Tab",
-        "action": openNewTab
-    },
-    {
-        "text": "New Window",
-        "action": openNewWindow
-    },
-    {
-        "text": "Show History",
-        "action": openHistory
-    },
-    {
-        "text": "Show Downloads",
-        "action": openDownloads
-    },
-    {
-        "text": "Show Extensions",
-        "action": openExtensions
-    },
-    {
-        "text": "Show Settings",
-        "action": openSettings
-    },
-    {
-        "text": "Close Current Tab",
-        "action": closeCurrentTab
-    },
-    {
-        "text": "Reload Tab",
-        "action": reloadTab
-    },
-    {
-        "text": "New Incognito Window",
-        "action": newIncognitoWindow
+function switchToTab(tabId){
+    return function(){
+        chrome.tabs.update(tabId, {'active': true});
     }
-];
+}
 
+function populateSuggestionList(){
+    var defaultSugestions = [
+        {
+            "text": "New Tab",
+            "action": openNewTab
+        },
+        {
+            "text": "New Window",
+            "action": openNewWindow
+        },
+        {
+            "text": "Show History",
+            "action": openHistory
+        },
+        {
+            "text": "Show Downloads",
+            "action": openDownloads
+        },
+        {
+            "text": "Show Extensions",
+            "action": openExtensions
+        },
+        {
+            "text": "Show Settings",
+            "action": openSettings
+        },
+        {
+            "text": "Close Current Tab",
+            "action": closeCurrentTab
+        },
+        {
+            "text": "Reload Tab",
+            "action": reloadTab
+        },
+        {
+            "text": "New Incognito Window",
+            "action": newIncognitoWindow
+        }
+    ];
+    chrome.tabs.query({}, function(allTabs){
+        console.log(allTabs);
+        for(tab of allTabs){
+            console.log(tab);
+            var tabAction = {
+                "text": "Switch to: " + tab.title,
+                "action": switchToTab(tab.id)
+            };
+            defaultSugestions.push(tabAction);
+        }
+        suggestionList = defaultSugestions;
+        populateSuggestions(suggestionList);
+    });
+}
 
 document.onkeydown = function(e){
     var keynum;
@@ -133,23 +152,24 @@ function populateSuggestions(suggestionList){
 }
 
 function initCommander() {
-    populateSuggestions(defaultSugestions);
+    populateSuggestionList();
 
     options = {
         keys: ['text']
     }
-    var f = new Fuse(defaultSugestions, options);
 
     document.getElementById("command").oninput = function(){
         var searchString = document.getElementById("command").value;
         if(searchString == ""){
-            populateSuggestions(defaultSugestions);
+            populateSuggestionList();
         }
         else{
+            var f = new Fuse(suggestionList, options);
             var fuzzResult = f.search(searchString);
             populateSuggestions(fuzzResult);
         }
     }
 }
 
+document.addEventListener('DOMContentLoaded', initCommander, false);
 
