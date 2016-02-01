@@ -10,6 +10,12 @@ body{
 	margin: 0px;
 	height: 200px;
 	min-width: 400px;
+	font-weight: 200;
+
+}
+
+::-webkit-input-placeholder {
+	font-weight: 200;
 }
 
 html{
@@ -19,6 +25,7 @@ html{
 .suggestion {
 	list-style-type: none;
 	font-size: 1.3em;
+	font-weight: 200;
 	padding: 1%;
 	border: 1px solid #EEEEEE;
 }
