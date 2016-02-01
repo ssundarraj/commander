@@ -89,9 +89,7 @@ function populateSuggestionList(){
         }
     ];
     chrome.tabs.query({}, function(allTabs){
-        console.log(allTabs);
         for(tab of allTabs){
-            console.log(tab);
             var tabAction = {
                 "text": "Switch to: " + tab.title,
                 "action": switchToTab(tab.id)
@@ -121,8 +119,11 @@ document.onkeydown = function(e){
             highlightedSuggestion = allSuggestions[allSuggestions.length - 1]
         }
         highlightedSuggestion.id = "highlighted";
-        scrollElement = highlightedSuggestion.previousSibling.previousSibling;
-        scrollElement.scrollIntoView(alignToTop=true);
+        try{
+            scrollElement = highlightedSuggestion.previousSibling.previousSibling;
+            scrollElement.scrollIntoView(alignToTop=true);
+        }
+        catch(err){}
         return false;
     }
     else if (keynum == 38){
@@ -134,8 +135,11 @@ document.onkeydown = function(e){
             highlightedSuggestion = document.getElementsByClassName("suggestion")[0];
         }
         highlightedSuggestion.id = "highlighted";
-        scrollElement = highlightedSuggestion.previousSibling.previousSibling;
-        scrollElement.scrollIntoView(alignToTop=true);
+        try{
+            scrollElement = highlightedSuggestion.previousSibling.previousSibling;
+            scrollElement.scrollIntoView(alignToTop=true);
+        }
+        catch(err){}
         return false;
     }
     else if (keynum == 13){
@@ -157,25 +161,26 @@ function populateSuggestions(suggestionList){
     highlightedSuggestion.id = "highlighted";
 }
 
-function initCommander() {
-    populateSuggestionList();
-
-    options = {
+function fuzzySearch(){
+    var options = {
         keys: ['text']
     }
-
-    document.getElementById("command").oninput = function(){
-        var searchString = document.getElementById("command").value;
-        if(searchString == ""){
-            populateSuggestionList();
-        }
-        else{
-            var fuzz = new Fuse(suggestionList, options);
-            var fuzzResult = fuzz.search(searchString);
-            populateSuggestions(fuzzResult);
-            delete fuzz;
-        }
+    var searchString = document.getElementById("command").value;
+    if(searchString == ""){
+        populateSuggestionList();
     }
+    else{
+        var fuzz = new Fuse(suggestionList, options);
+        var fuzzResult = fuzz.search(searchString);
+        populateSuggestions(fuzzResult);
+        delete fuzz;
+    }
+}
+
+
+function initCommander() {
+    populateSuggestionList();
+    document.getElementById("command").oninput = fuzzySearch;
 }
 
 document.addEventListener('DOMContentLoaded', initCommander, false);
