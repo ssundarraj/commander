@@ -40,6 +40,10 @@ function reloadTab() {
     chrome.tabs.reload();
 }
 
+function newIncognitoWindow(){
+    chrome.windows.create({'incognito': true});
+}
+
 var defaultSugestions = [
     {
         "text": "New Tab",
@@ -72,6 +76,10 @@ var defaultSugestions = [
     {
         "text": "Reload Tab",
         "action": reloadTab
+    },
+    {
+        "text": "New Incognito Window",
+        "action": newIncognitoWindow
     }
 ];
 
@@ -134,10 +142,13 @@ function initCommander() {
 
     document.getElementById("command").oninput = function(){
         var searchString = document.getElementById("command").value;
-        console.log(searchString);
-        console.log(f.search(searchString));
-        var fuzzResult = f.search(searchString);
-        populateSuggestions(fuzzResult);
+        if(searchString == ""){
+            populateSuggestions(defaultSugestions);
+        }
+        else{
+            var fuzzResult = f.search(searchString);
+            populateSuggestions(fuzzResult);
+        }
     }
 }
 
