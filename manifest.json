@@ -10,16 +10,7 @@
     "default_popup": "popup.html",
     "default_title": "Commander"
   },
-  // "permissions": [
-  //   "activeTab"
-  // ],
 
-  // "background": {
-  //   "scripts": [
-  //     "js/main.js"
-  //   ],
-  //   "persistant": false
-  // },
   "commands":{
     "_execute_browser_action": {
       "suggested_key": {
@@ -29,12 +20,5 @@
         "linux": "Ctrl+Shift+K"
       }
    }
-  },
-  "content_scripts": [
-    {
-      "matches": ["http://*/*", "https://*/*"],
-      "css": ["css/main.css"],
-      "js": ["js/main.js"]
-    }
-  ]
+  }
 }
