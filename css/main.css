@@ -9,7 +9,7 @@ body{
 	padding: 0px;
 	margin: 0px;
 	height: 200px;
-	min-width: 320px;
+	min-width: 400px;
 }
 
 html{
@@ -20,6 +20,7 @@ html{
 	list-style-type: none;
 	font-size: 1.3em;
 	padding: 1%;
+	border: 1px solid #EEEEEE;
 }
 
 #suggestions{
@@ -29,4 +30,8 @@ html{
 
 #highlighted {
 	background-color: #EEEEEE;
+}
+
+input:focus {
+	outline: 1px solid #EEEEEE;
 }

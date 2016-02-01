@@ -120,7 +120,8 @@ document.onkeydown = function(e){
             highlightedSuggestion = allSuggestions[allSuggestions.length - 1]
         }
         highlightedSuggestion.id = "highlighted";
-        highlightedSuggestion.scrollIntoView(alignToTop=true);
+        scrollElement = highlightedSuggestion.previousSibling.previousSibling;
+        scrollElement.scrollIntoView(alignToTop=true);
     }
     else if (keynum == 38){
         // up
@@ -130,7 +131,8 @@ document.onkeydown = function(e){
             highlightedSuggestion = document.getElementsByClassName("suggestion")[0];
         }
         highlightedSuggestion.id = "highlighted";
-        highlightedSuggestion.scrollIntoView(alignToTop=true);
+        scrollElement = highlightedSuggestion.previousSibling.previousSibling;
+        scrollElement.scrollIntoView(alignToTop=true);
     }
     else if (keynum == 13){
         // enter
@@ -164,9 +166,10 @@ function initCommander() {
             populateSuggestionList();
         }
         else{
-            var f = new Fuse(suggestionList, options);
-            var fuzzResult = f.search(searchString);
+            var fuzz = new Fuse(suggestionList, options);
+            var fuzzResult = fuzz.search(searchString);
             populateSuggestions(fuzzResult);
+            delete fuzz;
         }
     }
 }
