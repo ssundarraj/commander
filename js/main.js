@@ -113,6 +113,7 @@ document.onkeydown = function(e){
     }
     if (keynum == 40){
         // down
+        e.preventDefault();
         highlightedSuggestion.id = "";
         highlightedSuggestion = highlightedSuggestion.nextSibling;
         if(!highlightedSuggestion){
@@ -122,9 +123,11 @@ document.onkeydown = function(e){
         highlightedSuggestion.id = "highlighted";
         scrollElement = highlightedSuggestion.previousSibling.previousSibling;
         scrollElement.scrollIntoView(alignToTop=true);
+        return false;
     }
     else if (keynum == 38){
         // up
+        e.preventDefault();
         highlightedSuggestion.id = "";
         highlightedSuggestion = highlightedSuggestion.previousSibling;
         if(!highlightedSuggestion){
@@ -133,6 +136,7 @@ document.onkeydown = function(e){
         highlightedSuggestion.id = "highlighted";
         scrollElement = highlightedSuggestion.previousSibling.previousSibling;
         scrollElement.scrollIntoView(alignToTop=true);
+        return false;
     }
     else if (keynum == 13){
         // enter
