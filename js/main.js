@@ -17,15 +17,15 @@ function openDownloads() {
     chrome.tabs.create({url: "chrome://downloads"});
 }
 
-function openExtensions(){
+function openExtensions() {
     chrome.tabs.create({url: "chrome://extensions"});
 }
 
-function openSettings(){
+function openSettings() {
     chrome.tabs.create({url: "chrome://settings"});
 }
 
-function closeCurrentTab(){
+function closeCurrentTab() {
     chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (currentTabIds) {
         var currentTabArray = [], currentTabId;
         for (currentTabId of currentTabIds) {
@@ -35,21 +35,21 @@ function closeCurrentTab(){
     });
 }
 
-function reloadTab(){
+function reloadTab() {
     chrome.tabs.reload();
 }
 
-function newIncognitoWindow(){
+function newIncognitoWindow() {
     chrome.windows.create({'incognito': true});
 }
 
-function switchToTab(tabId){
-    return function(){
+function switchToTab(tabId) {
+    return function () {
         chrome.tabs.update(tabId, {'active': true});
-    }
+    };
 }
 
-function populateSuggestionList(){
+function populateSuggestionList() {
     var defaultSugestions = [
         {
             "text": "New Tab",
@@ -88,7 +88,7 @@ function populateSuggestionList(){
             "action": newIncognitoWindow
         }
     ];
-    chrome.tabs.query({}, function(allTabs){
+    chrome.tabs.query({'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (allTabs){
         for(tab of allTabs){
             var tabAction = {
                 "text": "Switch to: " + tab.title,
@@ -101,29 +101,27 @@ function populateSuggestionList(){
     });
 }
 
-document.onkeydown = function(e){
-    var keynum;
-    if(window.event){ // IE                 
-        keynum = e.keyCode;
+function reScroll(){
+    try{
+        scrollElement = highlightedSuggestion.previousSibling.previousSibling;
+        scrollElement.scrollIntoView(alignToTop=true);
     }
-    else if(e.which){ // Netscape/Firefox/Opera                  
-        keynum = e.which;
-    }
+    catch(err){}
+}
+
+function handleKeydown(e){
+    var keynum = e.which;
     if (keynum == 40){
         // down
         e.preventDefault();
         highlightedSuggestion.id = "";
         highlightedSuggestion = highlightedSuggestion.nextSibling;
-        if(!highlightedSuggestion){
+        if (!highlightedSuggestion){
             var allSuggestions = document.getElementsByClassName("suggestion");
             highlightedSuggestion = allSuggestions[allSuggestions.length - 1]
         }
         highlightedSuggestion.id = "highlighted";
-        try{
-            scrollElement = highlightedSuggestion.previousSibling.previousSibling;
-            scrollElement.scrollIntoView(alignToTop=true);
-        }
-        catch(err){}
+        reScroll();
         return false;
     }
     else if (keynum == 38){
@@ -131,15 +129,11 @@ document.onkeydown = function(e){
         e.preventDefault();
         highlightedSuggestion.id = "";
         highlightedSuggestion = highlightedSuggestion.previousSibling;
-        if(!highlightedSuggestion){
+        if (!highlightedSuggestion){
             highlightedSuggestion = document.getElementsByClassName("suggestion")[0];
         }
         highlightedSuggestion.id = "highlighted";
-        try{
-            scrollElement = highlightedSuggestion.previousSibling.previousSibling;
-            scrollElement.scrollIntoView(alignToTop=true);
-        }
-        catch(err){}
+        reScroll();
         return false;
     }
     else if (keynum == 13){
@@ -150,12 +144,13 @@ document.onkeydown = function(e){
 
 function populateSuggestions(suggestionList){
     document.getElementById('suggestions').innerHTML = "";
+    var suggestionDiv = document.getElementById('suggestions');
     for (suggestion of suggestionList) {
         var suggestionTag = document.createElement("li");
         suggestionTag.className = "suggestion";
         suggestionTag.innerHTML = suggestion.text;
         suggestionTag.onclick = suggestion.action;
-        document.getElementById('suggestions').appendChild(suggestionTag);
+        suggestionDiv.appendChild(suggestionTag);
     }
     highlightedSuggestion = document.getElementsByClassName("suggestion")[0];
     highlightedSuggestion.id = "highlighted";
@@ -166,7 +161,7 @@ function fuzzySearch(){
         keys: ['text']
     }
     var searchString = document.getElementById("command").value;
-    if(searchString == ""){
+    if (searchString == ""){
         populateSuggestionList();
     }
     else{
@@ -177,11 +172,10 @@ function fuzzySearch(){
     }
 }
 
-
 function initCommander() {
     populateSuggestionList();
     document.getElementById("command").oninput = fuzzySearch;
+    document.onkeydown = handleKeydown;
 }
 
 document.addEventListener('DOMContentLoaded', initCommander, false);
-
