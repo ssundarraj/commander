@@ -16,10 +16,10 @@
   "commands":{
     "_execute_browser_action": {
       "suggested_key": {
-        "windows": "Ctrl+Shift+K",
-        "mac": "Command+Shift+K",
-        "chromeos": "Ctrl+Shift+K",
-        "linux": "Ctrl+Shift+K"
+        "windows": "Ctrl+K",
+        "mac": "Command+K",
+        "chromeos": "Ctrl+K",
+        "linux": "Ctrl+K"
       }
    }
   }

@@ -89,15 +89,15 @@ function populateSuggestionList() {
         }
     ];
     chrome.tabs.query({'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (allTabs){
+        suggestionList = defaultSugestions;
         for(tab of allTabs){
             var tabAction = {
                 "text": "Switch to: " + tab.title,
                 "action": switchToTab(tab.id)
             };
-            defaultSugestions.push(tabAction);
+            suggestionList.push(tabAction);
         }
-        suggestionList = defaultSugestions;
-        populateSuggestions(suggestionList);
+        populateSuggestionsBox(suggestionList);
     });
 }
 
@@ -109,30 +109,34 @@ function reScroll(){
     catch(err){}
 }
 
+function changeHighlighted(newHighlighted){
+    highlightedSuggestion.id = "";
+    highlightedSuggestion = newHighlighted;
+    highlightedSuggestion.id = "highlighted";
+}
+
 function handleKeydown(e){
     var keynum = e.which;
     if (keynum == 40){
         // down
         e.preventDefault();
-        highlightedSuggestion.id = "";
-        highlightedSuggestion = highlightedSuggestion.nextSibling;
-        if (!highlightedSuggestion){
+        var newSuggestion = highlightedSuggestion.nextSibling;
+        if (!newSuggestion){
             var allSuggestions = document.getElementsByClassName("suggestion");
-            highlightedSuggestion = allSuggestions[allSuggestions.length - 1]
+            newSuggestion = allSuggestions[allSuggestions.length - 1]
         }
-        highlightedSuggestion.id = "highlighted";
+        changeHighlighted(newSuggestion);
         reScroll();
         return false;
     }
     else if (keynum == 38){
         // up
         e.preventDefault();
-        highlightedSuggestion.id = "";
-        highlightedSuggestion = highlightedSuggestion.previousSibling;
-        if (!highlightedSuggestion){
-            highlightedSuggestion = document.getElementsByClassName("suggestion")[0];
+        newSuggestion = highlightedSuggestion.previousSibling;
+        if (!newSuggestion){
+            newSuggestion = document.getElementsByClassName("suggestion")[0];
         }
-        highlightedSuggestion.id = "highlighted";
+        changeHighlighted(newSuggestion);
         reScroll();
         return false;
     }
@@ -142,7 +146,7 @@ function handleKeydown(e){
     }
 }
 
-function populateSuggestions(suggestionList){
+function populateSuggestionsBox(suggestionList){
     document.getElementById('suggestions').innerHTML = "";
     var suggestionDiv = document.getElementById('suggestions');
     for (suggestion of suggestionList) {
@@ -167,7 +171,7 @@ function fuzzySearch(){
     else{
         var fuzz = new Fuse(suggestionList, options);
         var fuzzResult = fuzz.search(searchString);
-        populateSuggestions(fuzzResult);
+        populateSuggestionsBox(fuzzResult);
         delete fuzz;
     }
 }
