@@ -39,8 +39,31 @@ function reloadTab() {
     chrome.tabs.reload();
 }
 
+function reloadAllTabs(){
+    chrome.tabs.query({'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (allTabs){
+        for(tab of allTabs){
+            chrome.tabs.reload(tab.id);
+        }
+        populateSuggestionsBox(suggestionList);
+    });
+}
+
+function reloadWithoutCache() {
+    chrome.tabs.reload(reloadProperties={'bypassCache':true});
+}
+
 function newIncognitoWindow() {
     chrome.windows.create({'incognito': true});
+}
+
+function togglePin(){
+    var isPinned;
+    chrome.tabs.query(queryInfo = {'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function(currentTab){
+        isPinned = currentTab[0].pinned;
+        console.log(!isPinned);
+        chrome.tabs.update(updateProperties = {'pinned': !isPinned});
+    });
+
 }
 
 function switchToTab(tabId) {
@@ -82,6 +105,18 @@ function populateSuggestionList() {
         {
             "text": "Reload Tab",
             "action": reloadTab
+        },
+        {
+            "text": "Reload All Tabs",
+            "action": reloadAllTabs
+        },
+        {
+            "text": "Clear Cache and Reload Tab",
+            "action": reloadWithoutCache
+        },
+        {
+            "text": "Toggle Pin",
+            "action": togglePin
         },
         {
             "text": "New Incognito Window",
