@@ -322,7 +322,7 @@ footer span.ribbon-inner a {
   bottom: -1px;
   color: #7eb0d2;
   font-family: 'Open Sans', Myriad, Calibri, sans-serif;
-  text-transform: uppercase;
+  /*text-transform: uppercase;*/
   font-style: normal;
   font-weight: 800;
   font-size: 1.2em;
