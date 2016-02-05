@@ -25,6 +25,10 @@ function openSettings() {
     chrome.tabs.create({url: "chrome://settings"});
 }
 
+function openBookmarks(){
+    chrome.tabs.create({url: "chrome://bookmarks"});
+}
+
 function closeCurrentTab() {
     chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (currentTabIds) {
         var currentTabArray = [], currentTabId;
@@ -93,6 +97,10 @@ function populateSuggestionList() {
         {
             "text": "Show Extensions",
             "action": openExtensions
+        },
+        {
+            "text": "Show Bookmarks",
+            "action": openBookmarks
         },
         {
             "text": "Show Settings",
@@ -181,6 +189,10 @@ function handleKeydown(e){
     }
 }
 
+function handleMouseover(e){
+    changeHighlighted(e.srcElement);
+}
+
 function populateSuggestionsBox(suggestionList){
     document.getElementById('suggestions').innerHTML = "";
     var suggestionDiv = document.getElementById('suggestions');
@@ -189,12 +201,7 @@ function populateSuggestionsBox(suggestionList){
         suggestionTag.className = "suggestion";
         suggestionTag.innerHTML = suggestion.text;
         suggestionTag.onclick = suggestion.action;
-        suggestionTag.onmouseover = function(e){
-            console.log(e);
-            changeHighlighted(e.srcElement);
-            e.cancelBubble = true
-            e.stopPropagation();
-        }
+        suggestionTag.onmouseover = handleMouseover;
         suggestionDiv.appendChild(suggestionTag);
     }
     highlightedSuggestion = document.getElementsByClassName("suggestion")[0];
