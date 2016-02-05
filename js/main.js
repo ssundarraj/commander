@@ -189,6 +189,12 @@ function populateSuggestionsBox(suggestionList){
         suggestionTag.className = "suggestion";
         suggestionTag.innerHTML = suggestion.text;
         suggestionTag.onclick = suggestion.action;
+        suggestionTag.onmouseover = function(e){
+            console.log(e);
+            changeHighlighted(e.srcElement);
+            e.cancelBubble = true
+            e.stopPropagation();
+        }
         suggestionDiv.appendChild(suggestionTag);
     }
     highlightedSuggestion = document.getElementsByClassName("suggestion")[0];
