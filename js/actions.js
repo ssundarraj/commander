@@ -233,18 +233,18 @@ var defaultSugestions = [
     },
     {
         "text": "Define in Dictionary.com",
-        "action": triggerSearch("define")
+        "action": triggerSearch("def")
     },
     {
         "text": "Search YouTube",
-        "action": triggerSearch("YouTube")
+        "action": triggerSearch("yt")
     },
     {
         "text": "Search Wikipedia",
-        "action": triggerSearch("Wikipedia")
+        "action": triggerSearch("wiki")
     },
     {
         "text": "Search IMDB",
-        "action": triggerSearch("IMDB")
+        "action": triggerSearch("imdb")
     }
 ];
