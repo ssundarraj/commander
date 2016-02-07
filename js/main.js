@@ -46,6 +46,9 @@ function populateSearchSuggestions(query) {
     else if(queryList[0].toLowerCase() == "youtube" || queryList[0].toLowerCase() == "yt") {
         processSearchQuery(queryList, "YouTube", searchYoutube);
     }
+    else if(queryList[0].toLowerCase() == "imdb") {
+        processSearchQuery(queryList, "IMDB", searchImdb);
+    }
 }
 
 function reScroll(){

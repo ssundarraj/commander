@@ -77,6 +77,13 @@ function searchYoutube(query) {
     }
 }
 
+function searchImdb(query) {
+    return function() {
+        query = encodeURI(query);
+        chrome.tabs.create({url: "http://www.imdb.com/find?s=all&q=" + query});
+    }
+}
+
 function switchToTab(tabId) {
     return function () {
         chrome.tabs.update(tabId, {'active': true});
