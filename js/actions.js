@@ -27,12 +27,9 @@ function openBookmarks(){
 }
 
 function closeCurrentTab() {
-    chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (currentTabIds) {
-        var currentTabArray = [], currentTabId;
-        for (currentTabId of currentTabIds) {
-            currentTabArray.push(currentTabId.id);
-        }
-        chrome.tabs.remove(currentTabArray);
+    chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (currentTab) {
+        currentTab = currentTab[0];
+        chrome.tabs.remove(currentTab.id);
     });
 }
 
@@ -61,7 +58,6 @@ function togglePin(){
     var isPinned;
     chrome.tabs.query(queryInfo = {'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function(currentTab){
         isPinned = currentTab[0].pinned;
-        console.log(!isPinned);
         chrome.tabs.update(updateProperties = {'pinned': !isPinned});
     });
 
@@ -71,6 +67,61 @@ function switchToTab(tabId) {
     return function () {
         chrome.tabs.update(tabId, {'active': true});
     };
+}
+
+function toggleMute(){
+    var isMuted;
+    chrome.tabs.query(queryInfo = {'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function(currentTab){
+        isMuted = currentTab[0].mutedInfo.muted;
+        chrome.tabs.update(updateProperties = {'muted': !isMuted});
+    });
+}
+
+function duplicateTab(){
+    chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (currentTab) {
+        currentTab = currentTab[0];
+        chrome.tabs.create({'url': currentTab.url, 'index': currentTab.index +  1});
+    });
+}
+
+function closeOtherTabs(){
+    chrome.tabs.query({'active': false, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (otherTabs) {
+        var otherTabIds = [];
+        for (tab of otherTabs) {
+            otherTabIds.push(tab.id);
+        }
+        chrome.tabs.remove(otherTabIds);
+    });
+}
+
+function closeTabsToRight(){
+    chrome.tabs.query({'active': false, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (otherTabs) {
+        chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (currentTab) {
+            currentTab = currentTab[0];
+            var otherTabIds = [];
+            for (tab of otherTabs) {
+                if (tab.index > currentTab.index){
+                    otherTabIds.push(tab.id);
+                }
+            }
+            chrome.tabs.remove(otherTabIds);
+        });
+    });
+}
+
+function closeTabsToLeft(){
+    chrome.tabs.query({'active': false, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (otherTabs) {
+        chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (currentTab) {
+            currentTab = currentTab[0];
+            var otherTabIds = [];
+            for (tab of otherTabs) {
+                if (tab.index < currentTab.index){
+                    otherTabIds.push(tab.id);
+                }
+            }
+            chrome.tabs.remove(otherTabIds);
+        });
+    });
 }
 
 var defaultSugestions = [
@@ -123,7 +174,27 @@ var defaultSugestions = [
         "action": togglePin
     },
     {
+        "text": "Duplicate Tab",
+        "action": duplicateTab
+    },
+    {
         "text": "New Incognito Window",
         "action": newIncognitoWindow
+    },
+    {
+        "text": "Close Other Tabs",
+        "action": closeOtherTabs
+    },
+    {
+        "text": "Close Tabs To Right",
+        "action": closeTabsToRight
+    },
+    {
+        "text": "Close Tabs To Left",
+        "action": closeTabsToLeft
+    },
+    {
+        "text": "Mute/Unmute Tab",
+        "action": toggleMute
     }
 ];
