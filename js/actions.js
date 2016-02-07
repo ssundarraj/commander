@@ -80,7 +80,7 @@ function toggleMute(){
 function duplicateTab(){
     chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (currentTab) {
         currentTab = currentTab[0];
-        chrome.tabs.create({'url': currentTab.url, 'index': currentTab.index +  1});
+        chrome.tabs.duplicate(currentTab.id);
     });
 }
 
