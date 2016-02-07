@@ -16,6 +16,7 @@ function populateSuggestionList() {
 }
 
 function processSearchQuery(queryList, searchDomain, searchFunction){
+    console.log(queryList);
     var searchQuery = "";
     var queryListLength = queryList.length;
     for(var i = 1; i < queryList.length; i++) {
@@ -48,6 +49,9 @@ function populateSearchSuggestions(query) {
     }
     else if(queryList[0].toLowerCase() == "imdb") {
         processSearchQuery(queryList, "IMDB", searchImdb);
+    }
+    else if(queryList[0].toLowerCase() == "def" || queryList[0].toLowerCase() == "define" || queryList[0].toLowerCase() == "dictionary") {
+        processSearchQuery(queryList, "Define in Dictionary.com", searchDictionary);
     }
 }
 
@@ -111,10 +115,11 @@ function populateSuggestionsBox(suggestionList){
         suggestionTag.onclick = suggestion.action;
         suggestionTag.onmouseover = handleMouseover;
         suggestionDiv.appendChild(suggestionTag);
-        console.log(suggestionTag);
     }
     highlightedSuggestion = document.getElementsByClassName("suggestion")[0];
-    highlightedSuggestion.id = "highlighted";
+    if (highlightedSuggestion){
+        highlightedSuggestion.id = "highlighted";
+    }
 }
 
 function fuzzySearch(){

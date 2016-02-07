@@ -84,6 +84,13 @@ function searchImdb(query) {
     }
 }
 
+function searchDictionary(query) {
+    return function() {
+        query = encodeURI(query);
+        chrome.tabs.create({url: "http://dictionary.reference.com/browse/" + query});
+    }
+}
+
 function switchToTab(tabId) {
     return function () {
         chrome.tabs.update(tabId, {'active': true});
