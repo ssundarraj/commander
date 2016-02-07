@@ -91,6 +91,12 @@ function searchDictionary(query) {
     }
 }
 
+function triggerSearch(queryTriggerString) {
+    return function() {
+        document.getElementById("command").value = queryTriggerString + " ";
+    }
+}
+
 function switchToTab(tabId) {
     return function () {
         chrome.tabs.update(tabId, {'active': true});
@@ -224,5 +230,21 @@ var defaultSugestions = [
     {
         "text": "Mute/Unmute Tab",
         "action": toggleMute
+    },
+    {
+        "text": "Define in Dictionary.com",
+        "action": triggerSearch("define")
+    },
+    {
+        "text": "Search YouTube",
+        "action": triggerSearch("YouTube")
+    },
+    {
+        "text": "Search Wikipedia",
+        "action": triggerSearch("Wikipedia")
+    },
+    {
+        "text": "Search IMDB",
+        "action": triggerSearch("IMDB")
     }
 ];
