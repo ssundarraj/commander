@@ -40,6 +40,29 @@ function populateSearchSuggestions(query) {
 
         suggestionList.unshift(tabAction);
     }
+    else if(queryList[0].toLowerCase() == "youtube" || queryList[0].toLowerCase() == "yt") {
+        var youtubeQuery = "";
+        queryListLength = queryList.length;
+        for(var i = 1; i < queryList.length; i++) {
+            youtubeQuery += queryList[i];
+            if(queryListLength > 2) youtubeQuery += " ";
+        }
+
+        var tabAction = {
+            "searchDomain": "YouTube",
+            "text": "YouTube Search Query: " + youtubeQuery,
+            "action" : searchYoutube(youtubeQuery)
+        };
+
+        // For removing previous search queries
+        for(var i = 0; i < suggestionList.length; i++) {
+            if(suggestionList[i].searchDomain == "YouTube") {
+                suggestionList.splice(i, 1);
+            }
+        }
+
+        suggestionList.unshift(tabAction);
+    }
 }
 
 function reScroll(){

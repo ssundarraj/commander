@@ -70,6 +70,13 @@ function searchWiki(query) {
     }
 }
 
+function searchYoutube(query) {
+    return function() {
+        query = encodeURI(query);
+        chrome.tabs.create({url: "https://www.youtube.com/results?search_query=" + query});
+    }
+}
+
 function switchToTab(tabId) {
     return function () {
         chrome.tabs.update(tabId, {'active': true});
