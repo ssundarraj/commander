@@ -15,7 +15,7 @@ function populateSuggestionList() {
     });
 }
 
-function populateAdditionalSuggestionList(query) {
+function populateSearchSuggestions(query) {
     var queryList = query.split(" ");
     if(queryList[0].toLowerCase() == "wiki" || queryList[0].toLowerCase() == "wikipedia") {
         var wikiQuery = "";
@@ -24,21 +24,22 @@ function populateAdditionalSuggestionList(query) {
             wikiQuery += queryList[i];
             if(queryListLength > 2) wikiQuery += " ";
         }
+
         var tabAction = {
             "searchDomain": "Wikipedia",
             "text": "Wikipedia Search Query: " + wikiQuery,
             "action" : searchWiki(wikiQuery)
         };
 
+        // For removing previous search queries
         for(var i = 0; i < suggestionList.length; i++) {
             if(suggestionList[i].searchDomain == "Wikipedia") {
                 suggestionList.splice(i, 1);
             }
         }
+
         suggestionList.unshift(tabAction);
     }
-    populateSuggestionsBox(suggestionList);
-    
 }
 
 function reScroll(){
@@ -91,7 +92,6 @@ function handleMouseover(e){
 }
 
 function populateSuggestionsBox(suggestionList){
-    //
     var suggestionDiv = document.getElementById('suggestions');
     suggestionDiv.innerHTML = "";
     
@@ -117,7 +117,7 @@ function fuzzySearch(){
         populateSuggestionList();
     }
     else{
-        populateAdditionalSuggestionList(searchString);
+        populateSearchSuggestions(searchString);
         var fuzz = new Fuse(suggestionList, options);
         var fuzzResult = fuzz.search(searchString);
         populateSuggestionsBox(fuzzResult);
