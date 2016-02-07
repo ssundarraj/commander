@@ -63,6 +63,13 @@ function togglePin(){
 
 }
 
+function searchWiki(query) {
+    return function() {
+        query = encodeURI(query);
+        chrome.tabs.create({url: "http://en.wikipedia.org/wiki/" + query});
+    }
+}
+
 function switchToTab(tabId) {
     return function () {
         chrome.tabs.update(tabId, {'active': true});
