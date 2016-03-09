@@ -6,23 +6,30 @@ module.exports = function(grunt) {
         separator: ';',
       },
       dist: {
-        src: ['js/actions.js', 'js/main.js', 'js/vendor/fuse.min.js'],
-        dest: 'js/dist/built.js',
+        src: ['src/js/actions.js', 'src/js/main.js', 'src/js/vendor/fuse.min.js'],
+        dest: 'dist/built.js',
       },
     },
     watch: {
       js: {
         files: [
-          'js/*.js',
-          'css/*.css'
+          'src/**'
         ],
         tasks: [
           'default',
         ]
       }
+    },
+    copy: {
+      main: {
+        files: [
+          {expand: true, flatten: true, src: ['src/**', '!src/js/**'], dest: 'dist/', filter: 'isFile'}
+        ]
+      }
     }
   });
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.registerTask('default', ['concat']);
+  grunt.registerTask('default', ['copy', 'concat']);
 }
