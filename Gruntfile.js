@@ -13,8 +13,8 @@ module.exports = function(grunt) {
     watch: {
       js: {
         files: [
-          'js/*.js'
-
+          'js/*.js',
+          'css/*.css'
         ],
         tasks: [
           'default',
