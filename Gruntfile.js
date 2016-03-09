@@ -10,17 +10,19 @@ module.exports = function(grunt) {
         dest: 'js/dist/built.js',
       },
     },
-    uglify: {
-      options: {
-        mangle: false
-      },
-      my_target: {
-        files: {
-          'js/dist/output.min.js': ['js/actions.js', 'js/main.js']
-        }
+    watch: {
+      js: {
+        files: [
+          'js/*.js'
+
+        ],
+        tasks: [
+          'default',
+        ]
       }
     }
   });
+  grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.registerTask('default', ['concat']);
 }
