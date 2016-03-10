@@ -26,10 +26,21 @@ module.exports = function(grunt) {
           {expand: true, flatten: true, src: ['src/**', '!src/js/**'], dest: 'dist/', filter: 'isFile'}
         ]
       }
+    },
+    compress: {
+      main: {
+        options: {
+          archive: 'dist/commander.zip'
+        },
+        files: [
+          {src: ['dist/**', '!dist/*.zip'], flatten: true, dest: '', filter: 'isFile'} // includes files in path
+        ]
+      }
     }
   });
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.registerTask('default', ['copy', 'concat']);
+  grunt.loadNpmTasks('grunt-contrib-compress');
+  grunt.registerTask('default', ['copy', 'concat', 'compress']);
 }

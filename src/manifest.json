@@ -3,7 +3,7 @@
 
   "name": "Commander",
   "description": "Command palette for Chrome.",
-  "version": "1.2.0",
+  "version": "1.2.1",
 
   "browser_action": {
     "default_icon": "icon.png",
