@@ -23,8 +23,13 @@ module.exports = function(grunt) {
     copy: {
       main: {
         files: [
-          {expand: true, flatten: true, src: ['src/**', '!src/js/**'], dest: 'dist/', filter: 'isFile'}
-        ]
+          {expand: true, flatten: true, src: ['src/**', '!src/js/**', '!src/css/**'], dest: 'dist/', filter: 'isFile'}
+        ],
+        options: {
+            process: function (content, srcpath){
+            return content.replace("<script src=\"js/vendor/fuse.min.js\"></script>\n    <script src=\"js/actions.js\"></script>\n    <script src=\"js/main.js\"></script>", "<script src=\"built.js\"></script>").replace("main.css", "main.min.css");
+          }
+        }
       }
     },
     compress: {
@@ -36,11 +41,23 @@ module.exports = function(grunt) {
           {expand: true, cwd: 'dist/', src: ['**', '!*.zip'], flatten: true, dest: '', filter: 'isFile'}
         ]
       }
+    },
+    cssmin: {
+      target: {
+        files: [{
+          expand: true,
+          cwd: 'src/css',
+          src: ['*.css', '!*.min.css'],
+          dest: 'dist',
+          ext: '.min.css'
+        }]
+      }
     }
   });
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-compress');
-  grunt.registerTask('default', ['copy', 'concat', 'compress']);
+  grunt.loadNpmTasks('grunt-contrib-cssmin');
+  grunt.registerTask('default', ['copy', 'concat', 'cssmin', 'compress']);
 }
