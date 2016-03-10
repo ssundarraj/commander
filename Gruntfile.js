@@ -1,14 +1,8 @@
 module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
-    concat: {
-      options: {
-        separator: ';',
-      },
-      dist: {
-        src: ['src/js/actions.js', 'src/js/main.js', 'src/js/vendor/fuse.min.js'],
-        dest: 'dist/built.js',
-      },
+    'jsmin-sourcemap': {
+      'dist/built.min.js': ['src/js/actions.js', 'src/js/main.js', 'src/js/vendor/fuse.min.js']
     },
     watch: {
       js: {
@@ -27,7 +21,7 @@ module.exports = function(grunt) {
         ],
         options: {
             process: function (content, srcpath){
-            return content.replace("<script src=\"js/vendor/fuse.min.js\"></script>\n    <script src=\"js/actions.js\"></script>\n    <script src=\"js/main.js\"></script>", "<script src=\"built.js\"></script>").replace("main.css", "main.min.css");
+            return content.replace("<script src=\"js/vendor/fuse.min.js\"></script>\n    <script src=\"js/actions.js\"></script>\n    <script src=\"js/main.js\"></script>", "<script src=\"built.min.js\"></script>").replace("main.css", "main.min.css");
           }
         }
       }
@@ -38,7 +32,7 @@ module.exports = function(grunt) {
           archive: 'dist/commander.zip'
         },
         files: [
-          {expand: true, cwd: 'dist/', src: ['**', '!*.zip'], flatten: true, dest: '', filter: 'isFile'}
+          {expand: true, cwd: 'dist/', src: ['**', '!*.zip', '!*.map'], flatten: true, dest: '', filter: 'isFile'}
         ]
       }
     },
@@ -56,8 +50,8 @@ module.exports = function(grunt) {
   });
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-copy');
-  grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-compress');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
-  grunt.registerTask('default', ['copy', 'concat', 'cssmin', 'compress']);
+  grunt.loadNpmTasks('grunt-jsmin-sourcemap');
+  grunt.registerTask('default', ['copy', 'cssmin', 'jsmin-sourcemap', 'compress']);
 }
