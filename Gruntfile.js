@@ -33,7 +33,7 @@ module.exports = function(grunt) {
           archive: 'dist/commander.zip'
         },
         files: [
-          {src: ['dist/**', '!dist/*.zip'], flatten: true, dest: '', filter: 'isFile'} // includes files in path
+          {expand: true, cwd: 'dist/', src: ['**', '!*.zip'], flatten: true, dest: '', filter: 'isFile'}
         ]
       }
     }
