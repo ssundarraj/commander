@@ -21,7 +21,7 @@ module.exports = function(grunt) {
         ],
         options: {
             process: function (content, srcpath){
-            return content.replace("<script src=\"js/vendor/fuse.min.js\"></script>\n    <script src=\"js/actions.js\"></script>\n    <script src=\"js/main.js\"></script>", "<script src=\"built.min.js\"></script>").replace("main.css", "main.min.css");
+            return content.replace("<script src=\"js/vendor/fuse.min.js\"></script>\n    <script src=\"js/actions.js\"></script>\n    <script src=\"js/main.js\"></script>", "<script src=\"built.min.js\"></script>").replace("css/main.css", "main.min.css");
           }
         }
       }
