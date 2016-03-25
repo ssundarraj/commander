@@ -17,10 +17,12 @@ module.exports = function(grunt) {
     copy: {
       main: {
         files: [
-          {expand: true, flatten: true, src: ['src/**', '!src/js/**', '!src/css/**'], dest: 'dist/', filter: 'isFile'}
+          {expand: true, flatten: true, src: ['src/**', '!src/js/**', 'src/js/options.js','!src/css/**'], dest: 'dist/', filter: 'isFile'}
         ],
         options: {
+            processContentExclude: ['**/*.{png,gif,jpg,ico,psd}'],
             process: function (content, srcpath){
+            content = content.replace("css/options.css", "options.min.css");
             return content.replace("<script src=\"js/vendor/fuse.min.js\"></script>\n    <script src=\"js/actions.js\"></script>\n    <script src=\"js/main.js\"></script>", "<script src=\"built.min.js\"></script>").replace("css/main.css", "main.min.css");
           }
         }
