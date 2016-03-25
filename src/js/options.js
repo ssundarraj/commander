@@ -1,5 +1,5 @@
 function addCommand(e){
-    var commandJson = document.forms.addCommandForm.addCommandContainer.addCommandJson.value
+    var commandJson = document.getElementById("addCommandJson").innerHTML;
     chrome.storage.local.get('userCommandJSON', function(items){
         var existingUserCommands = items.userCommandJSON;
         if(existingUserCommands == undefined){
