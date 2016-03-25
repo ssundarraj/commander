@@ -10,6 +10,9 @@
     "default_popup": "popup.html",
     "default_title": "Commander"
   },
+  "background": {
+    "page": "background.html"
+  },
   "permissions":[
     "tabs"
   ],
