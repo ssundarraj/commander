@@ -4,6 +4,7 @@ var suggestionList;
 function populateSuggestionList() {
     chrome.tabs.query({'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (allTabs){
         suggestionList = defaultSugestions;
+
         for(tab of allTabs){
             var tabAction = {
                 "text": "Switch to: " + tab.title,
@@ -11,6 +12,16 @@ function populateSuggestionList() {
             };
             suggestionList.push(tabAction);
         }
+
+        chrome.storage.local.get('userCommandJSON', function(items){
+            var existingUserCommands = items.userCommandJSON;
+            if(existingUserCommands != undefined && existingUserCommands != []){
+                for(userCommand of existingUserCommands){
+                    userCommand = eval('(' + userCommand + ')');
+                    suggestionList.push(userCommand);
+                }
+            }
+        });
         populateSuggestionsBox(suggestionList);
     });
 }

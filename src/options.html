@@ -1,0 +1,30 @@
+<html>
+	<head>
+		<title>Commander Settings</title>
+		<script src="js/options.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/options.css">
+	</head>
+	<body>
+		<div id="container">
+			<h1>Commander Settings</h1>
+			<hr/>
+			<hr/>
+			<h2>Add your own actions in this format:</h2>
+			<form id="addCommandForm">
+				<pre contenteditable="true" id="addCommandJson">
+{
+	"text": "My New Action",
+	"action": function(){
+		console.log("Do cool stuff here!");
+	}
+}
+				</pre>
+				<input form="addCommandForm" id="addCommandSubmit" type="button" value="Add Command"></input>
+			</form>
+			<hr/>
+			<hr/>
+			<h2>Existing Custom Actions:</h2>
+			<div id="existingActions"></div>
+		</div>
+	</body>
+</html>

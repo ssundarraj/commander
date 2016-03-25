@@ -1,0 +1,33 @@
+code, pre{
+	font-size: 1.1em;
+}
+
+div#container{
+	margin-left: 10%;
+	margin-top: 2%;
+	font-weight: 200;
+	width: 60%;
+}
+
+h1, h2, h3{
+	font-weight: 400;
+}
+
+.userCommand{
+	width: 70%;
+	padding: 1%;
+	margin-top: 0px;
+	margin-bottom: 2%;
+	border: 1px solid #EEEEEE;
+}
+
+hr{
+	border-color: #EEEEEE;
+}
+
+#addCommandJson{
+	padding: 3px;
+	border: 1px solid black;
+	width: 70%;
+	height: 120px;
+}
