@@ -35,6 +35,7 @@ function closeCurrentTab() {
 
 function reloadTab() {
     chrome.tabs.reload();
+    window.close();
 }
 
 function reloadAllTabs(){
@@ -48,6 +49,7 @@ function reloadAllTabs(){
 
 function reloadWithoutCache() {
     chrome.tabs.reload(reloadProperties={'bypassCache':true});
+    window.close();
 }
 
 function newIncognitoWindow() {
@@ -59,6 +61,7 @@ function togglePin(){
     chrome.tabs.query(queryInfo = {'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function(currentTab){
         isPinned = currentTab[0].pinned;
         chrome.tabs.update(updateProperties = {'pinned': !isPinned});
+        window.close();
     });
 
 }
@@ -108,6 +111,7 @@ function toggleMute(){
     chrome.tabs.query(queryInfo = {'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function(currentTab){
         isMuted = currentTab[0].mutedInfo.muted;
         chrome.tabs.update(updateProperties = {'muted': !isMuted});
+        window.close();
     });
 }
 
@@ -125,6 +129,7 @@ function closeOtherTabs(){
             otherTabIds.push(tab.id);
         }
         chrome.tabs.remove(otherTabIds);
+        window.close();
     });
 }
 
@@ -139,6 +144,7 @@ function closeTabsToRight(){
                 }
             }
             chrome.tabs.remove(otherTabIds);
+            window.close();
         });
     });
 }
@@ -154,6 +160,7 @@ function closeTabsToLeft(){
                 }
             }
             chrome.tabs.remove(otherTabIds);
+            window.close();
         });
     });
 }
