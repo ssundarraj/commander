@@ -26,6 +26,15 @@ function populateSuggestionList() {
     });
 }
 
+function escapeHtml(unsafe) {
+    return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+}
+
 function processSearchQuery(queryList, searchDomain, searchFunction){
     console.log(queryList);
     var searchQuery = "";
@@ -122,7 +131,7 @@ function populateSuggestionsBox(suggestionList){
     for (suggestion of suggestionList) {
         var suggestionTag = document.createElement("li");
         suggestionTag.className = "suggestion";
-        suggestionTag.innerHTML = suggestion.text;
+        suggestionTag.innerHTML = escapeHtml(suggestion.text);
         suggestionTag.onclick = suggestion.action;
         suggestionTag.onmouseover = handleMouseover;
         suggestionDiv.appendChild(suggestionTag);
