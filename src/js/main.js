@@ -36,7 +36,6 @@ function escapeHtml(unsafe) {
 }
 
 function processSearchQuery(queryList, searchDomain, searchFunction){
-    console.log(queryList);
     var searchQuery = "";
     var queryListLength = queryList.length;
     for(var i = 1; i < queryList.length; i++) {
