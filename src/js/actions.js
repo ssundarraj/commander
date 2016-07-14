@@ -260,11 +260,13 @@ var defaultSugestions = [
     },
     {
         "text": "Close Tabs To Right",
-        "action": closeTabsToRight
+        "action": closeTabsToRight,
+        "keyword": "right"
     },
     {
         "text": "Close Tabs To Left",
-        "action": closeTabsToLeft
+        "action": closeTabsToLeft,
+        "keyword": "left"
     },
     {
         "text": "Mute/Unmute Tab",
