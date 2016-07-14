@@ -288,18 +288,22 @@ var defaultSugestions = [
     },
     {
         "text": "Move Tab To Start",
-        "action": moveTabToStart
+        "action": moveTabToStart,
+        "keyword": "move start"
     },
     {
         "text": "Move Tab To End",
-        "action": moveTabToEnd
+        "action": moveTabToEnd,
+        "keyword": 'move end'
     },
     {
         "text": "Move Tab Left",
-        "action": moveTabLeft
+        "action": moveTabLeft,
+        "keyword": 'move left'
     },
     {
         "text": "Move Tab Right",
-        "action": moveTabRight
+        "action": moveTabRight,
+        "keyword": 'move right'
     }
 ];

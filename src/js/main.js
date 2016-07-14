@@ -143,7 +143,7 @@ function populateSuggestionsBox(suggestionList){
 
 function fuzzySearch(){
     var options = {
-        keys: ['text']
+        keys: ['text', 'keyword']
     }
     var searchString = document.getElementById("command").value;
     if (searchString == ""){
