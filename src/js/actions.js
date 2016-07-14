@@ -165,6 +165,38 @@ function closeTabsToLeft(){
     });
 }
 
+function moveTabToStart(){
+  chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (currentTab) {
+      currentTab = currentTab[0];
+      chrome.tabs.move(currentTab.id, { index: 0 });
+      window.close();
+  });
+}
+
+function moveTabToEnd(){
+  chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (currentTab) {
+      currentTab = currentTab[0];
+      chrome.tabs.move(currentTab.id, { index: -1 });
+      window.close();
+  });
+}
+
+function moveTabLeft(){
+  chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (currentTab) {
+      currentTab = currentTab[0];
+      chrome.tabs.move(currentTab.id, { index: currentTab.index - 1 });
+      window.close();
+  });
+}
+
+function moveTabRight(){
+  chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (currentTab) {
+      currentTab = currentTab[0];
+      chrome.tabs.move(currentTab.id, { index: currentTab.index + 1 });
+      window.close();
+  });
+}
+
 var defaultSugestions = [
     {
         "text": "New Tab",
@@ -253,5 +285,21 @@ var defaultSugestions = [
     {
         "text": "Search IMDB",
         "action": triggerSearch("imdb")
+    },
+    {
+        "text": "Move Tab To Start",
+        "action": moveTabToStart
+    },
+    {
+        "text": "Move Tab To End",
+        "action": moveTabToEnd
+    },
+    {
+        "text": "Move Tab Left",
+        "action": moveTabLeft
+    },
+    {
+        "text": "Move Tab Right",
+        "action": moveTabRight
     }
 ];
