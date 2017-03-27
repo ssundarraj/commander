@@ -103,6 +103,7 @@ function triggerSearch(queryTriggerString) {
 function switchToTab(tabId) {
     return function () {
         chrome.tabs.update(tabId, {'active': true});
+        window.close();
     };
 }
 
