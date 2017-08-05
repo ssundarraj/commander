@@ -1,3 +1,5 @@
+chromeP = new ChromePromise();
+
 function openNewTab() {
     chrome.tabs.create({});
 }
@@ -40,30 +42,20 @@ function reopenClosedTab() {
   });
 }
 
-function moveTabToNewWindow() {
-  chrome.tabs.getSelected(tab => {
-    chrome.windows.create({ tabId: tab.id });
-  });
+async function moveTabToNewWindow() {
+  const tab = await chromeP.tabs.getSelected();
+  chromeP.windows.create({ tabId: tab.id });
 }
-function moveTabToPrevWindow() {
-  chrome.tabs.getSelected(currentTab => {
-    chrome.windows.getCurrent({ windowTypes: ['normal'] }, (currentWindow) => {
-      chrome.windows.getAll({ windowTypes: ['normal'] }, (allWindows) => {
-        allWindows.some(win => {
-          if (win.id !== currentWindow.id) {
-            chrome.windows.update(win.id, { focused: true })
-            chrome.tabs.move(currentTab.id, {
-              windowId: win.id,
-              index: -1,
-            }, () => {
-              chrome.tabs.update(currentTab.id, { highlighted: true })
-            });
-            return true;
-          }
-        })
-      });
-    });
-  });
+
+async function moveTabToPrevWindow() {
+  const currentTab = await chromeP.tabs.getSelected();
+  const currentWindow = await chromeP.windows.getCurrent({ windowTypes: ['normal'] });
+  const allWindows = await chromeP.windows.getAll({ windowTypes: ['normal'] });
+  const otherWindows = allWindows.filter(win => (win.id !== currentWindow.id))
+  const prevWindow = otherWindows[0];
+  chromeP.windows.update(prevWindow.id, { focused: true })
+  chromeP.tabs.move(currentTab.id, { windowId: prevWindow.id, index: -1 })
+  chromeP.tabs.update(currentTab.id, { highlighted: true })
 }
 
 function reloadTab() {
