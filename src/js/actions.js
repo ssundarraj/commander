@@ -33,6 +33,12 @@ function closeCurrentTab() {
     });
 }
 
+function reopenClosedTab() {
+  chrome.sessions.getRecentlyClosed( undefined, function([ lastClosed ]) {
+    console.log("lastSessionId", lastClosed.tab.sessionId)
+    chrome.sessions.restore(lastClosed.tab.sessionId);
+  });
+}
 function reloadTab() {
     chrome.tabs.reload();
     window.close();
@@ -308,5 +314,10 @@ var defaultSugestions = [
         "text": "Move Tab Right",
         "action": moveTabRight,
         "keyword": 'move right'
+    },
+    {
+        "text": "Reopen Closed Tab",
+        "action": reopenClosedTab,
+        "keyword": 'reopen'
     }
 ];
