@@ -10,7 +10,14 @@ async function switchToTab(tabId) {
     window.close();
   };
 };
+
 var defaultSugestions = [
+  {
+    text: 'Open Commander Options',
+    action: async function() {
+      await chromeP.tabs.create({url: `chrome-extension://${chrome.runtime.id}/options.html`});
+    },
+  },
   {
     text: 'New Tab',
     action: async function() {
