@@ -5,29 +5,33 @@ const BOLD_END = '___end-bold___';
 const BOLD_START_REGEX = new RegExp(BOLD_START, 'g');
 const BOLD_END_REGEX = new RegExp(BOLD_END, 'g');
 
-function populateSuggestionList() {
-    chrome.tabs.query({'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (allTabs){
-        suggestionList = defaultSugestions;
+async function getEnabluedSugestions() {
+  let { disabledActions } = await chromeP.storage.local.get('disabledActions');
+  disabledActions = disabledActions || {};
+  return defaultSugestions.filter(({ text }) => !disabledActions[text]);
+}
 
-        for(tab of allTabs){
-            var tabAction = {
-                "text": "Switch to: " + tab.title,
-                "action": switchToTab(tab.id)
-            };
-            suggestionList.push(tabAction);
-        }
+async function populateSuggestionList() {
+    const allTabs = await chromeP.tabs.query({'windowId': chrome.windows.WINDOW_ID_CURRENT});
+    suggestionList = await getEnabluedSugestions();
 
-        chrome.storage.local.get('userCommandJSON', function(items){
-            var existingUserCommands = items.userCommandJSON;
-            if(existingUserCommands != undefined && existingUserCommands != []){
-                for(userCommand of existingUserCommands){
-                    userCommand = eval('(' + userCommand + ')');
-                    suggestionList.push(userCommand);
-                }
-            }
-        });
-        populateSuggestionsBox(suggestionList);
-    });
+    for(tab of allTabs){
+        var tabAction = {
+            "text": "Switch to: " + tab.title,
+            "action": switchToTab(tab.id)
+        };
+        suggestionList.push(tabAction);
+    }
+
+    const items = await chromeP.storage.local.get('userCommandJSON');
+      var existingUserCommands = items.userCommandJSON;
+      if(existingUserCommands != undefined && existingUserCommands != []){
+          for(userCommand of existingUserCommands){
+              userCommand = eval('(' + userCommand + ')');
+              suggestionList.push(userCommand);
+          }
+      }
+      populateSuggestionsBox(suggestionList);
 }
 
 function escapeHtml(unsafe) {
