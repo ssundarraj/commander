@@ -4,9 +4,9 @@ code, pre{
 
 div#container{
 	margin-left: 10%;
+	margin-right: 10%;
 	margin-top: 2%;
 	font-weight: 200;
-	width: 60%;
 }
 
 h1, h2, h3{
@@ -14,20 +14,29 @@ h1, h2, h3{
 }
 
 .userCommand{
-	width: 70%;
 	padding: 1%;
 	margin-top: 0px;
 	margin-bottom: 2%;
 	border: 1px solid #EEEEEE;
+}
+.userCommand pre{
+	overflow: auto;
+	tab-size: 2;
 }
 
 hr{
 	border-color: #EEEEEE;
 }
 
-#addCommandJson{
+#addCommandCode{
+	background-color: #21252b;
+	color: #abb2bf;
 	padding: 3px;
+	overflow: auto;
 	border: 1px solid black;
-	width: 70%;
 	height: 120px;
+	tab-size: 2;
+}
+#enabledActions{
+	column-count: 3;
 }

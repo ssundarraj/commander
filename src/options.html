@@ -1,7 +1,12 @@
 <html>
 	<head>
 		<title>Commander Settings</title>
-		<script src="js/options.js"></script>
+		<!-- <jsminify dest="options.min.js"> -->
+			<script src="js/vendor/chrome-promise.js"></script>
+			<script src="js/vendor/run_prettify.js"></script>
+			<script src="js/actions.js"></script>
+			<script src="js/options.js"></script>
+		<!-- </jsminify> -->
 		<link rel="stylesheet" type="text/css" href="css/options.css">
 	</head>
 	<body>
@@ -9,17 +14,21 @@
 			<h1>Commander Settings</h1>
 			<hr/>
 			<hr/>
+			<h2>Enabled actions:</h2>
+			<div id="enabledActions"></div>
+			<hr/>
+			<hr/>
 			<h2>Add your own actions in this format:</h2>
 			<form id="addCommandForm">
-				<pre contenteditable="true" id="addCommandJson">
-{
-	"text": "My New Action",
-	"action": function(){
-		console.log("Do cool stuff here!");
-	}
-}
-				</pre>
+				<p> Name: <input value="My New Action" id="addCommandName"/> </p>
+				<pre contenteditable="true" id="addCommandCode">
+function() {
+	// Remember this context is the one of the extension's popup, not the open tab.
+	// Look here: https://developer.chrome.com/extensions/api_index
+	console.log("Do cool stuff here!");
+}</pre>
 				<input form="addCommandForm" id="addCommandSubmit" type="button" value="Add Command"></input>
+				<span id="commandError" style="color: red;"></span>
 			</form>
 			<hr/>
 			<hr/>
