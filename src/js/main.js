@@ -184,7 +184,19 @@ function fuzzySearch(){
     }
 }
 
+function fixChromeBug() {
+  // 20% of the time the popup animation breaks and it stays tiny
+  // this seems to fix it
+  // looks like an ancient issue...
+  // https://productforums.google.com/forum/#!topic/chrome/4ofdh8EYL6Y
+  document.documentElement.style.width = document.body.offsetWidth - 1;
+  setTimeout(() => {
+    document.documentElement.style.width = document.body.offsetWidth;
+  }, 100);
+}
+
 function initCommander() {
+    fixChromeBug();
     populateSuggestionList();
     document.getElementById("command").oninput = fuzzySearch;
     document.onkeydown = handleKeydown;
