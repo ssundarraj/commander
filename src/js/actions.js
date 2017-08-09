@@ -39,6 +39,33 @@ function reopenClosedTab() {
     chrome.sessions.restore(lastClosed.tab.sessionId);
   });
 }
+
+function moveTabToNewWindow() {
+  chrome.tabs.getSelected(tab => {
+    chrome.windows.create({ tabId: tab.id });
+  });
+}
+function moveTabToPrevWindow() {
+  chrome.tabs.getSelected(currentTab => {
+    chrome.windows.getCurrent({ windowTypes: ['normal'] }, (currentWindow) => {
+      chrome.windows.getAll({ windowTypes: ['normal'] }, (allWindows) => {
+        allWindows.some(win => {
+          if (win.id !== currentWindow.id) {
+            chrome.windows.update(win.id, { focused: true })
+            chrome.tabs.move(currentTab.id, {
+              windowId: win.id,
+              index: -1,
+            }, () => {
+              chrome.tabs.update(currentTab.id, { highlighted: true })
+            });
+            return true;
+          }
+        })
+      });
+    });
+  });
+}
+
 function reloadTab() {
     chrome.tabs.reload();
     window.close();
@@ -319,5 +346,15 @@ var defaultSugestions = [
         "text": "Reopen Closed Tab",
         "action": reopenClosedTab,
         "keyword": 'reopen'
-    }
+    },
+    {
+        "text": "Deattach Tab (Move to New Window)",
+        "action": moveTabToNewWindow,
+        "keyword": 'move new window deattach'
+     },
+     {
+        "text": "Reattach Tab (Move Tab to Previous Window)",
+         "action": moveTabToPrevWindow,
+        "keyword": 'move Previous window reattach'
+     }
 ];
