@@ -17,85 +17,77 @@ async function populateSuggestionList() {
 
     for(tab of allTabs){
         var tabAction = {
-            "text": "Switch to: " + tab.title,
-            "action": switchToTab(tab.id)
+            text: `Switch to: ${tab.title}`,
+            action: switchToTab(tab.id)
         };
         suggestionList.push(tabAction);
     }
 
     const items = await chromeP.storage.local.get('userCommandJSON');
-      var existingUserCommands = items.userCommandJSON;
-      if(existingUserCommands != undefined && existingUserCommands != []){
-          for(userCommand of existingUserCommands){
-              userCommand = eval('(' + userCommand + ')');
-              suggestionList.push(userCommand);
-          }
-      }
-      populateSuggestionsBox(suggestionList);
+    var existingUserCommands = items.userCommandJSON || [];
+    for(userCommand of existingUserCommands){
+        suggestionList.push(eval(`(${userCommand})`));
+    }
+    populateSuggestionsBox(suggestionList);
 }
 
 function escapeHtml(unsafe) {
     return unsafe
-         .replace(/&/g, "&amp;")
-         .replace(/</g, "&lt;")
-         .replace(/>/g, "&gt;")
-         .replace(/"/g, "&quot;")
-         .replace(/'/g, "&#039;")
-         .replace(BOLD_START_REGEX, '<b>')
-         .replace(BOLD_END_REGEX, '</b>');
-}
-
-function processSearchQuery(queryList, searchDomain, searchFunction){
-    var searchQuery = "";
-    var queryListLength = queryList.length;
-    for(var i = 1; i < queryList.length; i++) {
-        searchQuery += queryList[i];
-        if(queryListLength > 2) searchQuery += " ";
-    }
-
-    var tabAction = {
-        "searchDomain": searchDomain,
-        "text": searchDomain + " Search Query: " + searchQuery,
-        "action" : searchFunction(searchQuery)
-    };
-
-    // For removing previous search queries
-    for(var i = 0; i < suggestionList.length; i++) {
-        if(suggestionList[i].searchDomain == searchDomain) {
-            suggestionList.splice(i, 1);
-        }
-    }
-    suggestionList.unshift(tabAction);
+       .replace(/&/g, '&amp;')
+       .replace(/</g, '&lt;')
+       .replace(/>/g, '&gt;')
+       .replace(/"/g, '&quot;')
+       .replace(/'/g, '&#039;')
+       .replace(BOLD_START_REGEX, '<b>')
+       .replace(BOLD_END_REGEX, '</b>');
 }
 
 function populateSearchSuggestions(query) {
-    var queryList = query.split(" ");
-    if(queryList[0].toLowerCase() == "wiki" || queryList[0].toLowerCase() == "wikipedia") {
-        processSearchQuery(queryList, "Wikipedia", searchWiki);
+    const queryList = query.split(' ');
+    const domain = queryList[0].toLowerCase();
+    const searchQuery = queryList.slice(1).join(' ');
+    const q = encodeURI(searchQuery);
+
+    let searchDomain;
+    let url;
+    if (['wiki', 'wikipedia'].includes(domain)) {
+      url = `http://en.wikipedia.org/wiki/${q}`;
+      searchDomain = 'Wikipedia';
+    } else if(['yt', 'youtube'].includes(domain)) {
+      url = `https://www.youtube.com/results?search_query=${q}`;
+      searchDomain = 'YouTube';
+    } else if (['imdb'].includes(domain)) {
+      url = `http://www.imdb.com/find?s=all&q=${q}`;
+      searchDomain = 'IMDB';
+    } else if (['def', 'define', 'dictionary'].includes(domain)) {
+      url = `http://dictionary.reference.com/browse/${q}`;
+      searchDomain = 'Dictionary';
+    } else {
+      return;
     }
-    else if(queryList[0].toLowerCase() == "youtube" || queryList[0].toLowerCase() == "yt") {
-        processSearchQuery(queryList, "YouTube", searchYoutube);
-    }
-    else if(queryList[0].toLowerCase() == "imdb") {
-        processSearchQuery(queryList, "IMDB", searchImdb);
-    }
-    else if(queryList[0].toLowerCase() == "def" || queryList[0].toLowerCase() == "define" || queryList[0].toLowerCase() == "dictionary") {
-        processSearchQuery(queryList, "Define in Dictionary.com", searchDictionary);
-    }
+    // remove all previous domain searches
+    suggestionList = suggestionList.filter(({searchDomain}) => searchDomain);
+    suggestionList.unshift({
+        searchDomain,
+        text: `${searchDomain} Search: ${searchQuery}`,
+        action: async function() {
+          await chromeP.tabs.create({url});
+        },
+    });
 }
 
 function reScroll(){
     try{
         scrollElement = highlightedSuggestion.previousSibling.previousSibling;
-        scrollElement.scrollIntoView(alignToTop=true);
+        scrollElement.scrollIntoView(/*alignToTop=*/true);
     }
     catch(err){}
 }
 
 function changeHighlighted(newHighlighted){
-    highlightedSuggestion.id = "";
+    highlightedSuggestion.id = '';
     highlightedSuggestion = newHighlighted;
-    highlightedSuggestion.id = "highlighted";
+    highlightedSuggestion.id = 'highlighted';
 }
 
 function handleKeydown(e){
@@ -105,7 +97,7 @@ function handleKeydown(e){
         e.preventDefault();
         var newSuggestion = highlightedSuggestion.nextSibling;
         if (!newSuggestion){
-            var allSuggestions = document.getElementsByClassName("suggestion");
+            var allSuggestions = document.getElementsByClassName('suggestion');
             newSuggestion = allSuggestions[allSuggestions.length - 1]
         }
         changeHighlighted(newSuggestion);
@@ -117,7 +109,7 @@ function handleKeydown(e){
         e.preventDefault();
         newSuggestion = highlightedSuggestion.previousSibling;
         if (!newSuggestion){
-            newSuggestion = document.getElementsByClassName("suggestion")[0];
+            newSuggestion = document.getElementsByClassName('suggestion')[0];
         }
         changeHighlighted(newSuggestion);
         reScroll();
@@ -135,19 +127,19 @@ function handleMouseover(e){
 
 function populateSuggestionsBox(suggestionList){
     var suggestionDiv = document.getElementById('suggestions');
-    suggestionDiv.innerHTML = "";
+    suggestionDiv.innerHTML = '';
 
     for (suggestion of suggestionList) {
-        var suggestionTag = document.createElement("li");
-        suggestionTag.className = "suggestion";
+        var suggestionTag = document.createElement('li');
+        suggestionTag.className = 'suggestion';
         suggestionTag.innerHTML = escapeHtml(suggestion.text);
         suggestionTag.onclick = suggestion.action;
         suggestionTag.onmouseover = handleMouseover;
         suggestionDiv.appendChild(suggestionTag);
     }
-    highlightedSuggestion = document.getElementsByClassName("suggestion")[0];
+    highlightedSuggestion = document.getElementsByClassName('suggestion')[0];
     if (highlightedSuggestion){
-        highlightedSuggestion.id = "highlighted";
+        highlightedSuggestion.id = 'highlighted';
     }
 }
 
@@ -157,21 +149,20 @@ function fuzzySearch(){
         shouldSort: true,
         keys: ['text', 'keyword'],
     }
-    var searchString = document.getElementById("command").value;
-    if (searchString == ""){
+    var searchString = document.getElementById('command').value;
+    if (!searchString){
         populateSuggestionList();
-    }
-    else{
+    }else{
         populateSearchSuggestions(searchString);
         var fuzz = new Fuse(suggestionList, options);
         var fuzzResult = fuzz.search(searchString);
-        const highlightedResult = fuzzResult.map(({ item, matches }) => {
+        const highlightedResult = fuzzResult.map(function({item, matches}){
             const highlightedItem = Object.assign({}, item);
-            matches.forEach(({ key, indices }) => {
+            matches.forEach(function({key, indices}){
                 original = item[key]
                 highlighted = '';
                 let from = 0;
-                indices.forEach(([start, end]) => {
+                indices.forEach(function([start, end]){
                     highlighted += original.slice(from, start) +
                         BOLD_START +
                         original.slice(start, end + 1) +
@@ -193,16 +184,16 @@ function fixChromeBug() {
   // this seems to fix it
   // looks like an ancient issue...
   // https://productforums.google.com/forum/#!topic/chrome/4ofdh8EYL6Y
-  document.documentElement.style.width = document.body.offsetWidth - 1;
-  setTimeout(() => {
-    document.documentElement.style.width = document.body.offsetWidth;
-  }, 100);
+  const {offsetWidth} = document.body;
+  const docStyle = document.documentElement.style;
+  docStyle.width = offsetWidth - 1;
+  setTimeout(function(){ docStyle.width = offsetWidth; }, 100);
 }
 
 function initCommander() {
     fixChromeBug();
     populateSuggestionList();
-    document.getElementById("command").oninput = fuzzySearch;
+    document.getElementById('command').oninput = fuzzySearch;
     document.onkeydown = handleKeydown;
 }
 

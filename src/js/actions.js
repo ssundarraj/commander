@@ -1,352 +1,247 @@
 chromeP = new ChromePromise();
-
-function openNewTab() {
-    chrome.tabs.create({});
-}
-
-function openNewWindow() {
-    chrome.windows.create({});
-}
-
-function openHistory() {
-    chrome.tabs.create({url: "chrome://history"});
-}
-
-function openDownloads() {
-    chrome.tabs.create({url: "chrome://downloads"});
-}
-
-function openExtensions() {
-    chrome.tabs.create({url: "chrome://extensions"});
-}
-
-function openSettings() {
-    chrome.tabs.create({url: "chrome://settings"});
-}
-
-function openBookmarks(){
-    chrome.tabs.create({url: "chrome://bookmarks"});
-}
-
-function closeCurrentTab() {
-    chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (currentTab) {
-        currentTab = currentTab[0];
-        chrome.tabs.remove(currentTab.id);
-    });
-}
-
-function reopenClosedTab() {
-  chrome.sessions.getRecentlyClosed( undefined, function([ lastClosed ]) {
-    console.log("lastSessionId", lastClosed.tab.sessionId)
-    chrome.sessions.restore(lastClosed.tab.sessionId);
-  });
-}
-
-async function moveTabToNewWindow() {
-  const tab = await chromeP.tabs.getSelected();
-  chromeP.windows.create({ tabId: tab.id });
-}
-
-async function moveTabToPrevWindow() {
-  const currentTab = await chromeP.tabs.getSelected();
-  const currentWindow = await chromeP.windows.getCurrent({ windowTypes: ['normal'] });
-  const allWindows = await chromeP.windows.getAll({ windowTypes: ['normal'] });
-  const otherWindows = allWindows.filter(win => (win.id !== currentWindow.id))
-  const prevWindow = otherWindows[0];
-  chromeP.windows.update(prevWindow.id, { focused: true })
-  chromeP.tabs.move(currentTab.id, { windowId: prevWindow.id, index: -1 })
-  chromeP.tabs.update(currentTab.id, { highlighted: true })
-}
-
-function reloadTab() {
-    chrome.tabs.reload();
-    window.close();
-}
-
-function reloadAllTabs(){
-    chrome.tabs.query({'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (allTabs){
-        for(tab of allTabs){
-            chrome.tabs.reload(tab.id);
-        }
-        populateSuggestionsBox(suggestionList);
-    });
-}
-
-function reloadWithoutCache() {
-    chrome.tabs.reload(reloadProperties={'bypassCache':true});
-    window.close();
-}
-
-function newIncognitoWindow() {
-    chrome.windows.create({'incognito': true});
-}
-
-function togglePin(){
-    var isPinned;
-    chrome.tabs.query(queryInfo = {'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function(currentTab){
-        isPinned = currentTab[0].pinned;
-        chrome.tabs.update(updateProperties = {'pinned': !isPinned});
-        window.close();
-    });
-
-}
-
-function searchWiki(query) {
-    return function() {
-        query = encodeURI(query);
-        chrome.tabs.create({url: "http://en.wikipedia.org/wiki/" + query});
-    }
-}
-
-function searchYoutube(query) {
-    return function() {
-        query = encodeURI(query);
-        chrome.tabs.create({url: "https://www.youtube.com/results?search_query=" + query});
-    }
-}
-
-function searchImdb(query) {
-    return function() {
-        query = encodeURI(query);
-        chrome.tabs.create({url: "http://www.imdb.com/find?s=all&q=" + query});
-    }
-}
-
-function searchDictionary(query) {
-    return function() {
-        query = encodeURI(query);
-        chrome.tabs.create({url: "http://dictionary.reference.com/browse/" + query});
-    }
-}
-
 function triggerSearch(queryTriggerString) {
-    return function() {
-        document.getElementById("command").value = queryTriggerString + " ";
-    }
-}
-
-function switchToTab(tabId) {
-    return function () {
-        chrome.tabs.update(tabId, {'active': true});
-        window.close();
-    };
-}
-
-function toggleMute(){
-    var isMuted;
-    chrome.tabs.query(queryInfo = {'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function(currentTab){
-        isMuted = currentTab[0].mutedInfo.muted;
-        chrome.tabs.update(updateProperties = {'muted': !isMuted});
-        window.close();
-    });
-}
-
-function duplicateTab(){
-    chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (currentTab) {
-        currentTab = currentTab[0];
-        chrome.tabs.duplicate(currentTab.id);
-    });
-}
-
-function closeOtherTabs(){
-    chrome.tabs.query({'active': false, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (otherTabs) {
-        var otherTabIds = [];
-        for (tab of otherTabs) {
-            otherTabIds.push(tab.id);
-        }
-        chrome.tabs.remove(otherTabIds);
-        window.close();
-    });
-}
-
-function closeTabsToRight(){
-    chrome.tabs.query({'active': false, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (otherTabs) {
-        chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (currentTab) {
-            currentTab = currentTab[0];
-            var otherTabIds = [];
-            for (tab of otherTabs) {
-                if (tab.index > currentTab.index){
-                    otherTabIds.push(tab.id);
-                }
-            }
-            chrome.tabs.remove(otherTabIds);
-            window.close();
-        });
-    });
-}
-
-function closeTabsToLeft(){
-    chrome.tabs.query({'active': false, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (otherTabs) {
-        chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (currentTab) {
-            currentTab = currentTab[0];
-            var otherTabIds = [];
-            for (tab of otherTabs) {
-                if (tab.index < currentTab.index){
-                    otherTabIds.push(tab.id);
-                }
-            }
-            chrome.tabs.remove(otherTabIds);
-            window.close();
-        });
-    });
-}
-
-function moveTabToStart(){
-  chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (currentTab) {
-      currentTab = currentTab[0];
-      chrome.tabs.move(currentTab.id, { index: 0 });
-      window.close();
-  });
-}
-
-function moveTabToEnd(){
-  chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (currentTab) {
-      currentTab = currentTab[0];
-      chrome.tabs.move(currentTab.id, { index: -1 });
-      window.close();
-  });
-}
-
-function moveTabLeft(){
-  chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (currentTab) {
-      currentTab = currentTab[0];
-      chrome.tabs.move(currentTab.id, { index: currentTab.index - 1 });
-      window.close();
-  });
-}
-
-function moveTabRight(){
-  chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (currentTab) {
-      currentTab = currentTab[0];
-      chrome.tabs.move(currentTab.id, { index: currentTab.index + 1 });
-      window.close();
-  });
-}
-
+  return function() {
+    document.getElementById('command').value = queryTriggerString + ' ';
+  };
+};
+async function switchToTab(tabId) {
+  return async function () {
+    await chromeP.tabs.update(tabId, {'active': true});
+    window.close();
+  };
+};
 var defaultSugestions = [
-    {
-        "text": "New Tab",
-        "action": openNewTab
+  {
+    text: 'New Tab',
+    action: async function() {
+      await chromeP.tabs.create({});
     },
-    {
-        "text": "New Window",
-        "action": openNewWindow
+  },
+  {
+    text: 'New Window',
+    action: async function() {
+      await chromeP.windows.create({});
     },
-    {
-        "text": "Show History",
-        "action": openHistory
+  },
+  {
+    text: 'Show History',
+    action: async function() {
+      await chromeP.tabs.create({url: 'chrome://history'});
     },
-    {
-        "text": "Show Downloads",
-        "action": openDownloads
+  },
+  {
+    text: 'Show Downloads',
+    action: async function() {
+      await chromeP.tabs.create({url: 'chrome://downloads'});
     },
-    {
-        "text": "Show Extensions",
-        "action": openExtensions
+  },
+  {
+    text: 'Show Extensions',
+    action: async function() {
+      await chromeP.tabs.create({url: 'chrome://extensions'});
     },
-    {
-        "text": "Show Bookmarks",
-        "action": openBookmarks
+  },
+  {
+    text: 'Show Bookmarks',
+    action: async function(){
+      await chromeP.tabs.create({url: 'chrome://bookmarks'});
     },
-    {
-        "text": "Show Settings",
-        "action": openSettings
+  },
+  {
+    text: 'Show Settings',
+    action: async function() {
+      await chromeP.tabs.create({url: 'chrome://settings'});
     },
-    {
-        "text": "Close Current Tab",
-        "action": closeCurrentTab
+  },
+  {
+    text: 'Close Current Tab',
+    action: async function(){
+      const windowId = chromeP.windows.WINDOW_ID_CURRENT;
+      const [currentTab] = await chromeP.tabs.query({active: true, windowId});
+      await chromeP.tabs.remove(currentTab.id);
     },
-    {
-        "text": "Reload Tab",
-        "action": reloadTab
+  },
+  {
+    text: 'Reload Tab',
+    action: async function() {
+      await chromeP.tabs.reload();
+      window.close();
     },
-    {
-        "text": "Reload All Tabs",
-        "action": reloadAllTabs
+  },
+  {
+    text: 'Reload All Tabs',
+    action: async function(){
+      const windowId = chromeP.windows.WINDOW_ID_CURRENT;
+      const allTabs = await chromeP.tabs.query({windowId})
+      for(tab of allTabs){
+        await chromeP.tabs.reload(tab.id);
+      }
+      populateSuggestionsBox(suggestionList);
     },
-    {
-        "text": "Clear Cache and Reload Tab",
-        "action": reloadWithoutCache
+  },
+  {
+    text: 'Clear Cache and Reload Tab',
+    action: async function() {
+      await chromeP.tabs.reload({bypassCache:true});
+      window.close();
     },
-    {
-        "text": "Toggle Pin",
-        "action": togglePin
+  },
+  {
+    text: 'Toggle Pin',
+    action: async function(){
+      const windowId = chromeP.windows.WINDOW_ID_CURRENT;
+      const [currentTab] = await chromeP.tabs.query({active: true, windowId});
+      await chromeP.tabs.update({pinned: !currentTab.isPinned});
+      window.close();
     },
-    {
-        "text": "Duplicate Tab",
-        "action": duplicateTab
+  },
+  {
+    text: 'Duplicate Tab',
+    action: async function(){
+      const windowId = chromeP.windows.WINDOW_ID_CURRENT;
+      const [currentTab] = await chromeP.tabs.query({active: true, windowId});
+      await chromeP.tabs.duplicate(currentTab.id);
     },
-    {
-        "text": "New Incognito Window",
-        "action": newIncognitoWindow
+  },
+  {
+    text: 'New Incognito Window',
+    action: async function() {
+      await chromeP.windows.create({incognito: true});
     },
-    {
-        "text": "Close Other Tabs",
-        "action": closeOtherTabs
+
+  },
+  {
+    text: 'Close Other Tabs',
+    action: async function(){
+      const windowId = chromeP.windows.WINDOW_ID_CURRENT;
+      const otherTabs = await chromeP.tabs.query({active: false, windowId});
+      const otherTabIds = otherTabs.map(({id}) => id);
+      await chromeP.tabs.remove(otherTabIds);
+      window.close();
     },
-    {
-        "text": "Close Tabs To Right",
-        "action": closeTabsToRight,
-        "keyword": "right"
+  },
+  {
+    text: 'Close Tabs To Right',
+    keyword: 'right',
+    action: async function(){
+      const windowId = chromeP.windows.WINDOW_ID_CURRENT;
+      const [currentTab] = await chromeP.tabs.query({active: true, windowId});
+      const otherTabs = await chromeP.tabs.query({active: false, windowId});
+      const otherTabIds = otherTabs.filter((tab) =>
+          tab.index > currentTab.index
+        ).map(({id}) => id);
+      await chromeP.tabs.remove(otherTabIds);
+      window.close();
     },
-    {
-        "text": "Close Tabs To Left",
-        "action": closeTabsToLeft,
-        "keyword": "left"
+  },
+  {
+    text: 'Close Tabs To Left',
+    keyword: 'left',
+    action: async function(){
+      const windowId = chromeP.windows.WINDOW_ID_CURRENT;
+      const [currentTab] = await chromeP.tabs.query({active: true, windowId});
+      const otherTabs = await chromeP.tabs.query({active: false, windowId});
+      const otherTabIds = otherTabs.filter((tab) =>
+          tab.index < currentTab.index
+        ).map(({id}) => id);
+      await chromeP.tabs.remove(otherTabIds);
+      window.close();
     },
-    {
-        "text": "Mute/Unmute Tab",
-        "action": toggleMute
+  },
+  {
+    text: 'Mute/Unmute Tab',
+    action: async function(){
+      const windowId = chromeP.windows.WINDOW_ID_CURRENT;
+      const [currentTab] = await chromeP.tabs.query(queryInfo = {active: true, windowId});
+      const isMuted = currentTab.mutedInfo.muted;
+      await chromeP.tabs.update({muted: !isMuted});
+      window.close();
     },
-    {
-        "text": "Define in Dictionary.com",
-        "action": triggerSearch("def")
+  },
+  {
+    text: 'Define in Dictionary.com',
+    action: triggerSearch('def')
+  },
+  {
+    text: 'Search YouTube',
+    action: triggerSearch('yt')
+  },
+  {
+    text: 'Search Wikipedia',
+    action: triggerSearch('wiki')
+  },
+  {
+    text: 'Search IMDB',
+    action: triggerSearch('imdb')
+  },
+  {
+    text: 'Move Tab To Start',
+    keyword: 'move start',
+    action: async function(){
+      const windowId = chromeP.windows.WINDOW_ID_CURRENT;
+      const [currentTab] = await chromeP.tabs.query({active: true, windowId});
+      await chromeP.tabs.move(currentTab.id, {index: 0});
+      window.close();
     },
-    {
-        "text": "Search YouTube",
-        "action": triggerSearch("yt")
+  },
+  {
+    text: 'Move Tab To End',
+    keyword: 'move end',
+    action: async function(){
+      const windowId = chromeP.windows.WINDOW_ID_CURRENT;
+      const [currentTab] = await chromeP.tabs.query({active: true, windowId});
+      await chromeP.tabs.move(currentTab.id, {index: -1});
+      window.close();
     },
-    {
-        "text": "Search Wikipedia",
-        "action": triggerSearch("wiki")
+  },
+  {
+    text: 'Move Tab Left',
+    keyword: 'move left',
+    action: async function(){
+      const windowId = chromeP.windows.WINDOW_ID_CURRENT;
+      const [currentTab] = await chromeP.tabs.query({active: true, windowId});
+      await chromeP.tabs.move(currentTab.id, {index: currentTab.index - 1});
+      window.close();
     },
-    {
-        "text": "Search IMDB",
-        "action": triggerSearch("imdb")
+  },
+  {
+    text: 'Move Tab Right',
+    keyword: 'move right',
+    action: async function(){
+      const windowId = chromeP.windows.WINDOW_ID_CURRENT;
+      const [currentTab] = await chromeP.tabs.query({active: true, windowId});
+      await chromeP.tabs.move(currentTab.id, {index: currentTab.index + 1});
+      window.close();
     },
-    {
-        "text": "Move Tab To Start",
-        "action": moveTabToStart,
-        "keyword": "move start"
+  },
+  {
+    text: 'Reopen Closed Tab',
+    keyword: 'reopen',
+    action: async function(){
+      const [lastClosed] = await chromeP.sessions.getRecentlyClosed();
+      await chromeP.sessions.restore(lastClosed.tab.sessionId);
     },
-    {
-        "text": "Move Tab To End",
-        "action": moveTabToEnd,
-        "keyword": 'move end'
+  },
+  {
+    text: 'Deattach Tab (Move to New Window)',
+    keyword: 'move new window deattach',
+    action: async function() {
+      const tab = await chromeP.tabs.getSelected();
+      await chromeP.windows.create({ tabId: tab.id });
     },
-    {
-        "text": "Move Tab Left",
-        "action": moveTabLeft,
-        "keyword": 'move left'
+  },
+  {
+    text: 'Reattach Tab (Move Tab to Previous Window)',
+    keyword: 'move Previous window reattach',
+    action: async function() {
+      const currentTab = await chromeP.tabs.getSelected();
+      const currentWindow = await chromeP.windows.getCurrent({ windowTypes: ['normal'] });
+      const allWindows = await chromeP.windows.getAll({ windowTypes: ['normal'] });
+      const otherWindows = allWindows.filter(win => (win.id !== currentWindow.id))
+      const prevWindow = otherWindows[0];
+      await chromeP.windows.update(prevWindow.id, { focused: true })
+      await chromeP.tabs.move(currentTab.id, { windowId: prevWindow.id, index: -1 })
+      await chromeP.tabs.update(currentTab.id, { highlighted: true })
     },
-    {
-        "text": "Move Tab Right",
-        "action": moveTabRight,
-        "keyword": 'move right'
-    },
-    {
-        "text": "Reopen Closed Tab",
-        "action": reopenClosedTab,
-        "keyword": 'reopen'
-    },
-    {
-        "text": "Deattach Tab (Move to New Window)",
-        "action": moveTabToNewWindow,
-        "keyword": 'move new window deattach'
-     },
-     {
-        "text": "Reattach Tab (Move Tab to Previous Window)",
-         "action": moveTabToPrevWindow,
-        "keyword": 'move Previous window reattach'
-     }
+  },
 ];
