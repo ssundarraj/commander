@@ -1,35 +1,8 @@
-var highlightedSuggestion;
-var suggestionList;
-const BOLD_START = '___start-bold___';
-const BOLD_END = '___end-bold___';
+let highlightedSuggestion;
+const BOLD_START = '∑';
+const BOLD_END = 'π';
 const BOLD_START_REGEX = new RegExp(BOLD_START, 'g');
 const BOLD_END_REGEX = new RegExp(BOLD_END, 'g');
-
-async function getEnabluedSugestions() {
-  let { disabledActions } = await chromeP.storage.local.get('disabledActions');
-  disabledActions = disabledActions || {};
-  return defaultSugestions.filter(({ text }) => !disabledActions[text]);
-}
-
-async function populateSuggestionList() {
-    const allTabs = await chromeP.tabs.query({'windowId': chromeP.windows.WINDOW_ID_CURRENT});
-    suggestionList = await getEnabluedSugestions();
-
-    for(tab of allTabs){
-        var tabAction = {
-            text: `Switch to: ${tab.title}`,
-            action: switchToTab(tab.id)
-        };
-        suggestionList.push(tabAction);
-    }
-
-    const items = await chromeP.storage.local.get('userCommandJSON');
-    var existingUserCommands = items.userCommandJSON || [];
-    for(userCommand of existingUserCommands){
-        suggestionList.push(eval(`(${userCommand})`));
-    }
-    populateSuggestionsBox(suggestionList);
-}
 
 function escapeHtml(unsafe) {
     return unsafe
@@ -42,41 +15,61 @@ function escapeHtml(unsafe) {
        .replace(BOLD_END_REGEX, '</b>');
 }
 
-function populateSearchSuggestions(query) {
-    const queryList = query.split(' ');
+async function getEnabledSugestions() {
+  let { disabledActions } = await chromeP.storage.local.get('disabledActions');
+  disabledActions = disabledActions || {};
+  return defaultSugestions.filter(({ text }) => !disabledActions[text]);
+}
+
+async function getSwitchTabSugestions() {
+    const allTabs = await chromeP.tabs.query({'windowId': chromeP.windows.WINDOW_ID_CURRENT});
+    return allTabs.map(tab => ({
+      text: `Switch to: ${tab.title}`,
+      action: switchToTab(tab.id),
+    }));
+}
+
+async function getUserCommandJSONSuggestions() {
+    const items = await chromeP.storage.local.get('userCommandJSON');
+    var existingUserCommands = items.userCommandJSON || [];
+    return existingUserCommands.map(userCommand => eval(`(${userCommand})`));
+}
+
+async function getSearchSuggestions() {
+    const searchString = document.getElementById('command').value;
+    const queryList = searchString.split(' ');
     const domain = queryList[0].toLowerCase();
     const searchQuery = queryList.slice(1).join(' ');
     const q = encodeURI(searchQuery);
 
     let searchDomain;
     let url;
-    if (['wiki', 'wikipedia'].includes(domain)) {
-      url = `http://en.wikipedia.org/wiki/${q}`;
-      searchDomain = 'Wikipedia';
-    } else if(['yt', 'youtube'].includes(domain)) {
-      url = `https://www.youtube.com/results?search_query=${q}`;
-      searchDomain = 'YouTube';
-    } else if (['imdb'].includes(domain)) {
-      url = `http://www.imdb.com/find?s=all&q=${q}`;
-      searchDomain = 'IMDB';
-    } else if (['def', 'define', 'dictionary'].includes(domain)) {
-      url = `http://dictionary.reference.com/browse/${q}`;
-      searchDomain = 'Dictionary';
-    } else {
-      return;
-    }
-    // remove all previous domain searches
-    suggestionList = suggestionList.filter(({searchDomain}) => searchDomain);
-    suggestionList.unshift({
-        searchDomain,
-        text: `${searchDomain} Search: ${searchQuery}`,
-        action: async function() {
-          await chromeP.tabs.create({url});
-        },
+
+    const enabledSugestions = await getEnabledSugestions();
+    const match = enabledSugestions.find(function({triggers}){
+      return triggers && triggers.includes(domain);
     });
+    if (match) {
+      return [{
+        text: `${match.text}: ${searchQuery}`,
+        action: async function() {
+          await chromeP.tabs.create({url: match.queryToUrl(q)});
+        },
+      }];
+    }
+    return [];
 }
 
-function reScroll(){
+async function getAllSuggestions() {
+  return [].concat(
+    await getEnabledSugestions(),
+    await getSwitchTabSugestions(),
+    await getUserCommandJSONSuggestions(),
+  );
+}
+
+
+function scrollTo(highlightedSuggestion){
     try{
         scrollElement = highlightedSuggestion.previousSibling.previousSibling;
         scrollElement.scrollIntoView(/*alignToTop=*/true);
@@ -91,34 +84,28 @@ function changeHighlighted(newHighlighted){
 }
 
 function handleKeydown(e){
-    var keynum = e.which;
-    if (keynum == 40){
-        // down
-        e.preventDefault();
-        var newSuggestion = highlightedSuggestion.nextSibling;
-        if (!newSuggestion){
-            var allSuggestions = document.getElementsByClassName('suggestion');
-            newSuggestion = allSuggestions[allSuggestions.length - 1]
-        }
-        changeHighlighted(newSuggestion);
-        reScroll();
-        return false;
+  switch (e.which){
+    case (40):{// down
+      const allSuggestions = document.getElementsByClassName('suggestion');
+      const newSuggestion = highlightedSuggestion.nextSibling ||
+        allSuggestions[allSuggestions.length - 1];
+      changeHighlighted(newSuggestion);
+      scrollTo(newSuggestion);
+      return false;
     }
-    else if (keynum == 38){
-        // up
-        e.preventDefault();
-        newSuggestion = highlightedSuggestion.previousSibling;
-        if (!newSuggestion){
-            newSuggestion = document.getElementsByClassName('suggestion')[0];
-        }
-        changeHighlighted(newSuggestion);
-        reScroll();
-        return false;
+    case (38):{ // up
+      e.preventDefault();
+      const newSuggestion =
+        highlightedSuggestion.previousSibling ||
+        document.getElementsByClassName('suggestion')[0];
+      changeHighlighted(newSuggestion);
+      scrollTo(newSuggestion);
+      return false;
     }
-    else if (keynum == 13){
-        // enter
-        highlightedSuggestion.click();
+    case (13):{ // enter
+      highlightedSuggestion.click();
     }
+  }
 }
 
 function handleMouseover(e){
@@ -158,40 +145,27 @@ Right click here and select [Inspect] to open DevTools in the action's context.
     }
 }
 
-function fuzzySearch(){
-    var options = {
-        includeMatches: true,
-        shouldSort: true,
-        keys: ['text', 'keyword'],
-    }
+async function fuzzySearch(){
     var searchString = document.getElementById('command').value;
-    if (!searchString){
-        populateSuggestionList();
-    }else{
-        populateSearchSuggestions(searchString);
-        var fuzz = new Fuse(suggestionList, options);
-        var fuzzResult = fuzz.search(searchString);
-        const highlightedResult = fuzzResult.map(function({item, matches}){
-            const highlightedItem = Object.assign({}, item);
-            matches.forEach(function({key, indices}){
-                original = item[key]
-                highlighted = '';
-                let from = 0;
-                indices.forEach(function([start, end]){
-                    highlighted += original.slice(from, start) +
-                        BOLD_START +
-                        original.slice(start, end + 1) +
-                        BOLD_END;
-                    from = end + 1;
-                });
-                highlighted += original.slice(from);
-                highlightedItem[key] = highlighted;
-            });
-            return highlightedItem;
-        });
-        populateSuggestionsBox(highlightedResult);
-        delete fuzz;
-    }
+    const allSuggestions = await getAllSuggestions();
+
+    const options = {
+      pre: BOLD_START, // before matched char
+      post: BOLD_END, // after matched char
+      sep: 'Ω', // between different fields
+      extract: s => `${s.text}${options.sep}${s.keyword || ''}`,
+    };
+    const searchResults = fuzzy
+      .filter(searchString, allSuggestions, options)
+      .map(el => {
+        // fuzzy wraps every char with <pre> and <post> so first remove contiguous ones
+        const delimited = el.string.replace(new RegExp(options.post + options.pre, 'g'), '');
+        const [text] = delimited.split(options.sep);
+        return Object.assign({}, el.original, { text });
+      });
+
+    const withSearches = (await getSearchSuggestions()).concat(searchResults);
+    populateSuggestionsBox(withSearches);
 }
 
 function fixChromeBug() {
@@ -205,9 +179,13 @@ function fixChromeBug() {
   setTimeout(function(){ docStyle.width = offsetWidth; }, 100);
 }
 
-function initCommander() {
+async function initCommander() {
     fixChromeBug();
-    populateSuggestionList();
+    const withSearches = [].concat(
+      await getSearchSuggestions(),
+      await getAllSuggestions(),
+    );
+    await populateSuggestionsBox(withSearches);
     document.getElementById('command').oninput = fuzzySearch;
     document.onkeydown = handleKeydown;
 }

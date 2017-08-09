@@ -83,7 +83,7 @@ var defaultSugestions = [
       for(tab of allTabs){
         await chromeP.tabs.reload(tab.id);
       }
-      populateSuggestionsBox(suggestionList);
+      window.close();
     },
   },
   {
@@ -167,19 +167,28 @@ var defaultSugestions = [
   },
   {
     text: 'Define in Dictionary.com',
-    action: triggerSearch('def')
+    action: triggerSearch('def'),
+    triggers: ['def', 'define', 'dictionary'],
+    queryToUrl: (q) => `http://dictionary.reference.com/browse/${q}`,
   },
   {
     text: 'Search YouTube',
-    action: triggerSearch('yt')
+    action: triggerSearch('yt'),
+    triggers: ['yt', 'youtube'],
+    queryToUrl: (q) => `https://www.youtube.com/results?search_query=${q}`,
+
   },
   {
     text: 'Search Wikipedia',
-    action: triggerSearch('wiki')
+    action: triggerSearch('wiki'),
+    triggers: ['wiki', 'wikipedia'],
+    queryToUrl: (q) => `http://en.wikipedia.org/wiki/${q}`,
   },
   {
     text: 'Search IMDB',
-    action: triggerSearch('imdb')
+    action: triggerSearch('imdb'),
+    triggers: ['imdb'],
+    queryToUrl: (q) => `http://www.imdb.com/find?s=all&q=${q}`,
   },
   {
     text: 'Move Tab To Start',
@@ -223,10 +232,9 @@ var defaultSugestions = [
   },
   {
     text: 'Reopen Closed Tab',
-    keyword: 'reopen',
+    keyword: 'reopen unclose',
     action: async function(){
-      const [lastClosed] = await chromeP.sessions.getRecentlyClosed();
-      await chromeP.sessions.restore(lastClosed.tab.sessionId);
+      return await chromeP.sessions.restore();
     },
   },
   {
