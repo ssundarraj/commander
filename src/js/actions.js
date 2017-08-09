@@ -4,7 +4,7 @@ function triggerSearch(queryTriggerString) {
     document.getElementById('command').value = queryTriggerString + ' ';
   };
 };
-async function switchToTab(tabId) {
+function switchToTab(tabId) {
   return async function () {
     await chromeP.tabs.update(tabId, {'active': true});
     window.close();
@@ -15,7 +15,7 @@ var defaultSugestions = [
   {
     text: 'Open Commander Options',
     action: async function() {
-      await chromeP.tabs.create({url: `chrome-extension://${chrome.runtime.id}/options.html`});
+      await chromeP.tabs.create({url: `chrome-extension://${chromeP.runtime.id}/options.html`});
     },
   },
   {
@@ -98,7 +98,7 @@ var defaultSugestions = [
     action: async function(){
       const windowId = chromeP.windows.WINDOW_ID_CURRENT;
       const [currentTab] = await chromeP.tabs.query({active: true, windowId});
-      await chromeP.tabs.update({pinned: !currentTab.isPinned});
+      await chromeP.tabs.update({pinned: !currentTab.pinned});
       window.close();
     },
   },

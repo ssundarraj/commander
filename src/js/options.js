@@ -3,7 +3,18 @@ async function addCommand(e){
     var action = document.getElementById('addCommandCode').innerHTML;
     const items = await chromeP.storage.local.get('userCommandJSON');
     var existingUserCommands = items.userCommandJSON || [];
-    const commandJson = JSON.stringify({text, action});
+    const commandJson = (
+`{
+  text: ${JSON.stringify(text)},
+  action: ${action.replace(/\n/g, '\n\t')}
+}`
+    );
+    try {
+      eval(`(${commandJson})`)
+    } catch (e) {
+      document.getElementById('commandError').innerHTML = `${e.message}\n[Open DevTools for stacktrace]`;
+      throw e;
+    }
     existingUserCommands.push(commandJson);
     await chromeP.storage.local.set({'userCommandJSON': existingUserCommands});
     location.reload();
@@ -29,6 +40,7 @@ async function initEnabledActions(){
   disabledActions = disabledActions || {};
   var container = document.getElementById('enabledActions');
   defaultSugestions.forEach(function({text}){
+    const label = document.createElement('label');
     const checkbox = document.createElement('input');
     checkbox.setAttribute('type', 'checkbox');
     checkbox.checked = !disabledActions[text];
@@ -36,9 +48,10 @@ async function initEnabledActions(){
       disabledActions[text] = !checkbox.checked;
       await chromeP.storage.local.set({ disabledActions });
     });
-    container.appendChild(checkbox);
-    container.appendChild(document.createTextNode(text));
-    container.appendChild(document.createElement('br'));
+    label.appendChild(checkbox);
+    label.appendChild(document.createTextNode(text));
+    label.appendChild(document.createElement('br'));
+    container.appendChild(label);
 
   });
 }
@@ -47,34 +60,27 @@ async function initCustomCommands(){
     var addCommandSubmit = document.getElementById('addCommandSubmit');
     addCommandSubmit.onclick = addCommand;
     const items = await chromeP.storage.local.get('userCommandJSON');
-    existingUserCommands = items.userCommandJSON;
-    if(existingUserCommands){
-        var existingCommandDiv = document.getElementById('existingActions');
-        existingCommandDiv.innerHTML = '';
-        for(var i = 0; i < existingUserCommands.length; i++){
-            userCommand = existingUserCommands[i];
-            commandDiv = document.createElement('div');
-            commandDiv.className = 'userCommand';
-            commandDiv.innerHTML = `<h3> Command #${i}</h3>`;
-            commandDivCode = document.createElement('code');
-            commandDivCodePre = document.createElement('pre')
-            commandDivCodePre.className='prettyprint lang-js';
-            const { text, action } = JSON.parse(userCommand);
-            commandDivCodePre.innerHTML =
-`/* ${text} */
-
-${action}
-`;
-            commandDivCode.appendChild(commandDivCodePre);
-            commandDiv.appendChild(commandDivCode);
-            delButton = document.createElement('button');
-            delButton.name = i;
-            delButton.innerHTML = 'Delete Command';
-            delButton.onclick = deleteCommand;
-            commandDiv.appendChild(delButton);
-            existingCommandDiv.appendChild(commandDiv);
-        }
-    }
+    existingUserCommands = items.userCommandJSON || [];
+    var existingCommandDiv = document.getElementById('existingActions');
+    existingCommandDiv.innerHTML = '';
+    for(var i = 0; i < existingUserCommands.length; i++){
+        userCommand = existingUserCommands[i];
+        commandDiv = document.createElement('div');
+        commandDiv.className = 'userCommand';
+        commandDiv.innerHTML = `<h3> Command #${i}</h3>`;
+        commandDivCode = document.createElement('code');
+        commandDivCodePre = document.createElement('pre')
+        commandDivCodePre.className='prettyprint lang-js';
+        commandDivCodePre.innerHTML = userCommand;
+        commandDivCode.appendChild(commandDivCodePre);
+        commandDiv.appendChild(commandDivCode);
+        delButton = document.createElement('button');
+        delButton.name = i;
+        delButton.innerHTML = 'Delete Command';
+        delButton.onclick = deleteCommand;
+        commandDiv.appendChild(delButton);
+        existingCommandDiv.appendChild(commandDiv);
+      }
     PR.prettyPrint();
 }
 

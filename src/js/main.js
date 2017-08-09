@@ -12,7 +12,7 @@ async function getEnabluedSugestions() {
 }
 
 async function populateSuggestionList() {
-    const allTabs = await chromeP.tabs.query({'windowId': chrome.windows.WINDOW_ID_CURRENT});
+    const allTabs = await chromeP.tabs.query({'windowId': chromeP.windows.WINDOW_ID_CURRENT});
     suggestionList = await getEnabluedSugestions();
 
     for(tab of allTabs){
@@ -129,11 +129,26 @@ function populateSuggestionsBox(suggestionList){
     var suggestionDiv = document.getElementById('suggestions');
     suggestionDiv.innerHTML = '';
 
-    for (suggestion of suggestionList) {
+    for (const suggestion of suggestionList) {
         var suggestionTag = document.createElement('li');
         suggestionTag.className = 'suggestion';
         suggestionTag.innerHTML = escapeHtml(suggestion.text);
-        suggestionTag.onclick = suggestion.action;
+        suggestionTag.onclick = async function() {
+          try {
+            await suggestion.action();
+          } catch (e) {
+            document.body.innerHTML = (
+`Error executing action [${escapeHtml(suggestion.text)}]:
+<pre style="color: red">
+  ${escapeHtml(e.message)}
+</pre>
+Right click here and select [Inspect] to open DevTools in the action's context.
+`
+            );
+            console.error(suggestion.action.toString());
+            console.error(e.message);
+          }
+        }
         suggestionTag.onmouseover = handleMouseover;
         suggestionDiv.appendChild(suggestionTag);
     }
