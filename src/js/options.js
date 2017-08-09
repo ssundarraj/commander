@@ -1,7 +1,7 @@
 async function addCommand(e){
     var text = document.getElementById('addCommandName').value;
     var action = document.getElementById('addCommandCode').innerHTML;
-    const items = await chromeP.storage.local.get('userCommandJSON');
+    const items = await chromePromise.storage.local.get('userCommandJSON');
     var existingUserCommands = items.userCommandJSON || [];
     const commandJson = (
 `{
@@ -16,17 +16,17 @@ async function addCommand(e){
       throw e;
     }
     existingUserCommands.push(commandJson);
-    await chromeP.storage.local.set({'userCommandJSON': existingUserCommands});
+    await chromePromise.storage.local.set({'userCommandJSON': existingUserCommands});
     location.reload();
 }
 
 async function deleteCommand(e){
     var index = e.srcElement.name;
     console.log(index);
-    const items = await chromeP.storage.local.get('userCommandJSON');
+    const items = await chromePromise.storage.local.get('userCommandJSON');
     const {userCommandJSON} = items;
     userCommandJSON.splice(index, 1);
-    await chromeP.storage.local.set({userCommandJSON});
+    await chromePromise.storage.local.set({userCommandJSON});
     location.reload();
 }
 
@@ -36,7 +36,7 @@ async function initSettings(){
 }
 
 async function initEnabledActions(){
-  let {disabledActions} = await chromeP.storage.local.get('disabledActions');
+  let {disabledActions} = await chromePromise.storage.local.get('disabledActions');
   disabledActions = disabledActions || {};
   var container = document.getElementById('enabledActions');
   defaultSugestions.forEach(function({text}){
@@ -46,7 +46,7 @@ async function initEnabledActions(){
     checkbox.checked = !disabledActions[text];
     checkbox.addEventListener('change', async function(e){
       disabledActions[text] = !checkbox.checked;
-      await chromeP.storage.local.set({ disabledActions });
+      await chromePromise.storage.local.set({ disabledActions });
     });
     label.appendChild(checkbox);
     label.appendChild(document.createTextNode(text));
@@ -59,7 +59,7 @@ async function initEnabledActions(){
 async function initCustomCommands(){
     var addCommandSubmit = document.getElementById('addCommandSubmit');
     addCommandSubmit.onclick = addCommand;
-    const items = await chromeP.storage.local.get('userCommandJSON');
+    const items = await chromePromise.storage.local.get('userCommandJSON');
     existingUserCommands = items.userCommandJSON || [];
     var existingCommandDiv = document.getElementById('existingActions');
     existingCommandDiv.innerHTML = '';

@@ -2,8 +2,18 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     'jsmin-sourcemap': {
-      'dist/built.min.js': ['src/js/actions.js', 'src/js/main.js', 'src/js/vendor/fuse.min.js'],
-      'dist/options.min.js': ['src/js/options.js'],
+      'dist/built.min.js': [
+        'src/js/vendor/fuzzy.js',
+        'src/js/vendor/chrome-promise.js',
+        'src/js/actions.js',
+        'src/js/main.js',
+      ],
+      'dist/options.min.js': [
+        'src/js/vendor/chrome-promise.js',
+        'src/js/vendor/run_prettify.js',
+        'src/js/actions.js',
+        'src/js/options.js',
+      ],
 
     },
     watch: {
@@ -24,10 +34,16 @@ module.exports = function(grunt) {
         options: {
             processContentExclude: ['**/*.{png,gif,jpg,ico,psd}'],
             process: function (content, srcpath){
-            content = content.replace("css/options.css", "options.min.css");
-            content = content.replace("js/options.js", "options.min.js");
-            return content.replace("<script src=\"js/vendor/fuse.min.js\"></script>\n    <script src=\"js/actions.js\"></script>\n    <script src=\"js/main.js\"></script>", "<script src=\"built.min.js\"></script>").replace("css/main.css", "main.min.css");
-          }
+                return content
+                  .replace(
+                    /href="css\/([^"]+?)\.css"/g,
+                    'href="$1.min.css"'
+                  )
+                  .replace(
+                    /<!-- <jsminify dest="(.+)"> -->[\S\s]+?<!-- <\/jsminify> -->/g,
+                    '<script src="$1"></script>'
+                  );
+            }
         }
       }
     },

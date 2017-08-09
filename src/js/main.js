@@ -16,13 +16,13 @@ function escapeHtml(unsafe) {
 }
 
 async function getEnabledSugestions() {
-  let { disabledActions } = await chromeP.storage.local.get('disabledActions');
+  let { disabledActions } = await chromePromise.storage.local.get('disabledActions');
   disabledActions = disabledActions || {};
   return defaultSugestions.filter(({ text }) => !disabledActions[text]);
 }
 
 async function getSwitchTabSugestions() {
-    const allTabs = await chromeP.tabs.query({'windowId': chromeP.windows.WINDOW_ID_CURRENT});
+    const allTabs = await chromePromise.tabs.query({'windowId': chromePromise.windows.WINDOW_ID_CURRENT});
     return allTabs.map(tab => ({
       text: `Switch to: ${tab.title}`,
       action: switchToTab(tab.id),
@@ -30,7 +30,7 @@ async function getSwitchTabSugestions() {
 }
 
 async function getUserCommandJSONSuggestions() {
-    const items = await chromeP.storage.local.get('userCommandJSON');
+    const items = await chromePromise.storage.local.get('userCommandJSON');
     var existingUserCommands = items.userCommandJSON || [];
     return existingUserCommands.map(userCommand => eval(`(${userCommand})`));
 }
@@ -53,7 +53,7 @@ async function getSearchSuggestions() {
       return [{
         text: `${match.text}: ${searchQuery}`,
         action: async function() {
-          await chromeP.tabs.create({url: match.queryToUrl(q)});
+          await chromePromise.tabs.create({url: match.queryToUrl(q)});
         },
       }];
     }
@@ -85,7 +85,7 @@ function changeHighlighted(newHighlighted){
 
 function handleKeydown(e){
   switch (e.which){
-    case (40):{// down
+    case (40):{ // down
       const allSuggestions = document.getElementsByClassName('suggestion');
       const newSuggestion = highlightedSuggestion.nextSibling ||
         allSuggestions[allSuggestions.length - 1];
@@ -124,14 +124,13 @@ function populateSuggestionsBox(suggestionList){
           try {
             await suggestion.action();
           } catch (e) {
-            document.body.innerHTML = (
-`Error executing action [${escapeHtml(suggestion.text)}]:
-<pre style="color: red">
-  ${escapeHtml(e.message)}
-</pre>
-Right click here and select [Inspect] to open DevTools in the action's context.
-`
-            );
+            document.body.innerHTML = (`
+              Error executing action [${escapeHtml(suggestion.text)}]:
+              <pre style="color: red">
+                ${escapeHtml(e.message)}
+              </pre>
+              Right click here and select [Inspect] to open DevTools in the action's context.
+            `);
             console.error(suggestion.action.toString());
             console.error(e.message);
           }
@@ -181,11 +180,7 @@ function fixChromeBug() {
 
 async function initCommander() {
     fixChromeBug();
-    const withSearches = [].concat(
-      await getSearchSuggestions(),
-      await getAllSuggestions(),
-    );
-    await populateSuggestionsBox(withSearches);
+    fuzzySearch();
     document.getElementById('command').oninput = fuzzySearch;
     document.onkeydown = handleKeydown;
 }
