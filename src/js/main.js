@@ -1,5 +1,9 @@
 var highlightedSuggestion;
 var suggestionList;
+const BOLD_START = '___start-bold___';
+const BOLD_END = '___end-bold___';
+const BOLD_START_REGEX = new RegExp(BOLD_START, 'g');
+const BOLD_END_REGEX = new RegExp(BOLD_END, 'g');
 
 function populateSuggestionList() {
     chrome.tabs.query({'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (allTabs){
@@ -32,7 +36,9 @@ function escapeHtml(unsafe) {
          .replace(/</g, "&lt;")
          .replace(/>/g, "&gt;")
          .replace(/"/g, "&quot;")
-         .replace(/'/g, "&#039;");
+         .replace(/'/g, "&#039;")
+         .replace(BOLD_START_REGEX, '<b>')
+         .replace(BOLD_END_REGEX, '</b>');
 }
 
 function processSearchQuery(queryList, searchDomain, searchFunction){
@@ -126,7 +132,7 @@ function handleMouseover(e){
 function populateSuggestionsBox(suggestionList){
     var suggestionDiv = document.getElementById('suggestions');
     suggestionDiv.innerHTML = "";
-    
+
     for (suggestion of suggestionList) {
         var suggestionTag = document.createElement("li");
         suggestionTag.className = "suggestion";
@@ -143,7 +149,9 @@ function populateSuggestionsBox(suggestionList){
 
 function fuzzySearch(){
     var options = {
-        keys: ['text', 'keyword']
+        includeMatches: true,
+        shouldSort: true,
+        keys: ['text', 'keyword'],
     }
     var searchString = document.getElementById("command").value;
     if (searchString == ""){
@@ -153,7 +161,25 @@ function fuzzySearch(){
         populateSearchSuggestions(searchString);
         var fuzz = new Fuse(suggestionList, options);
         var fuzzResult = fuzz.search(searchString);
-        populateSuggestionsBox(fuzzResult);
+        const highlightedResult = fuzzResult.map(({ item, matches }) => {
+            const highlightedItem = Object.assign({}, item);
+            matches.forEach(({ key, indices }) => {
+                original = item[key]
+                highlighted = '';
+                let from = 0;
+                indices.forEach(([start, end]) => {
+                    highlighted += original.slice(from, start) +
+                        BOLD_START +
+                        original.slice(start, end + 1) +
+                        BOLD_END;
+                    from = end + 1;
+                });
+                highlighted += original.slice(from);
+                highlightedItem[key] = highlighted;
+            });
+            return highlightedItem;
+        });
+        populateSuggestionsBox(highlightedResult);
         delete fuzz;
     }
 }
